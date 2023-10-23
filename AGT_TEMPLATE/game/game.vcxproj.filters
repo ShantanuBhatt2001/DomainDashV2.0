@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\example_layer.cpp" />
+    <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\my_game\env_layer.cpp">
+      <Filter>my_game</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\example_layer.h" />
+    <ClInclude Include="src\my_game\env_layer.h">
+      <Filter>my_game</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="my_game">
+      <UniqueIdentifier>{404772ba-8504-41cf-af30-aab71be7a022}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

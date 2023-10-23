@@ -14,6 +14,7 @@
 // ---renderer------------------------
 #include "engine/renderer/renderer.h"
 #include "engine/renderer/render_command.h"
+#include "engine/entities/shapes/tetrahedron.h"
 
 #include "engine/renderer/buffer.h"
 #include "engine/renderer/shader.h"

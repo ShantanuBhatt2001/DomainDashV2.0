@@ -98,7 +98,8 @@ namespace engine
     // Default camera values
     const float YAW         = -90.0f;
     const float PITCH       =  0.0f;
-    const float SPEED       =  2.5f;
+    const float ROLL        =  0.0f;
+    const float SPEED       =  5.f;
     const float SENSITIVITY =  0.1f;
     const float ZOOM        =  45.0f;
 
@@ -110,14 +111,16 @@ namespace engine
             forward = 0, 
             backward, 
             left, 
-            right 
+            right,
+            up,
+            down
         };
 
     public: 
         perspective_camera( 
             float width, float height,  
             float fov = 45.f,  
-            float near_z = 0.1f, float far_z = 100.f);
+            float near_z = 0.1f, float far_z = 200.f);
 
         void on_update(const timestep& timestep) override;
 
@@ -142,7 +145,9 @@ namespace engine
 
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
-        void move(e_direction direction, timestep ts); 
+        void move(e_direction direction, timestep ts);
+        void rail_move( timestep ts);
+        void radial_move(e_direction dir, float speed, glm::vec3 center, timestep ts);
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);
         void update_camera_vectors();
         void update_view_matrix(); 
