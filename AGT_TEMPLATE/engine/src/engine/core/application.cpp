@@ -30,7 +30,7 @@ engine::application::~application()
 void engine::application::run()
 {
 	engine::timer gameLoopTimer;
-    const timestep TICK_TIME(1.f / 100.f);
+    const timestep TICK_TIME(1.f / 50.f);
     m_last_frame_time = static_cast<float>(glfwGetTime());
 	gameLoopTimer.start();
 	while (s_running)

@@ -18,7 +18,8 @@ engine::game_object::game_object(const game_object_properties& props)
 	m_friction(props.friction),
     s_static(props.is_static),
     m_type(props.type),
-    m_bounding_shape(props.bounding_shape)
+    m_bounding_shape(props.bounding_shape),
+    m_rotation_euler(props.rotation)
 {}
 
 /*engine::game_object::game_object(const glm::vec3 position, const glm::vec3 velocity, std::vector<ref<mesh>> meshes,
