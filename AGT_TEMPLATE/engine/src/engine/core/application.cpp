@@ -30,17 +30,29 @@ engine::application::~application()
 void engine::application::run()
 {
 	engine::timer gameLoopTimer;
+    const timestep TICK_TIME(1.f / 100.f);
+    m_last_frame_time = static_cast<float>(glfwGetTime());
 	gameLoopTimer.start();
 	while (s_running)
 	{
-		timestep time_step = (float)gameLoopTimer.elapsed();
-		gameLoopTimer.reset();
-		for (auto* layer : m_layers_stack)
-		{
-			layer->on_update(time_step);
-			if (!application::s_minimized)
-				layer->on_render();
-		}
+        const auto time = static_cast<float>(glfwGetTime());
+        float time_elapsed = time- m_last_frame_time;
+        while (time_elapsed >= TICK_TIME) {
+            time_elapsed -= TICK_TIME;
+            for (auto* layer : m_layers_stack)
+            {
+                layer->on_update(TICK_TIME);
+                
+            }
+            m_last_frame_time = time - time_elapsed;
+        }
+        for (auto* layer : m_layers_stack)
+        {
+            layer->on_render();
+        }
+
+        const auto end_time = static_cast<float>(glfwGetTime());
+        Sleep((DWORD)(std::max(0.0f, TICK_TIME.seconds() - (end_time - time))));
 		m_window->on_update();
 	}
 }

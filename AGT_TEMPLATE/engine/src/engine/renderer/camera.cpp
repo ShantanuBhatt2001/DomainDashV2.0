@@ -69,7 +69,7 @@ engine::perspective_camera::perspective_camera(
     m_near_plane(near_z), 
     m_far_plane(far_z) 
 { 
-    m_position = glm::vec3(0.0f, 0.0f, 0.0f);  
+    m_position = glm::vec3(30.0f, 0.0f, 0.0f);  
     m_front_vector = glm::vec3(0.0f, 0.0f, -1.0f);
     m_up_vector = glm::vec3(0.0f, 1.0f,  0.0f);
     m_view_mat = glm::lookAt(m_position, m_position + m_front_vector, m_up_vector);
@@ -87,7 +87,21 @@ engine::perspective_camera::perspective_camera(
     LOG_CORE_TRACE("3d cam position: [{},{},{}]", m_position.x, m_position.y, m_position.z); 
     LOG_CORE_TRACE("3d cam rotation: [{},{},{}]", m_rotation_angle.x, m_rotation_angle.y, m_rotation_angle.z); 
 }
-
+void engine::perspective_camera::on_update(const timestep& timestep, glm::vec3 center, float radius)
+{
+    auto look_dir = center - m_position;
+    update_camera_vectors(look_dir);
+    if (input::key_pressed(engine::key_codes::KEY_A)) // left
+        radial_move(e_direction::left,radius, center, timestep);
+    if (input::key_pressed(engine::key_codes::KEY_D)) // right
+        radial_move(e_direction::right,radius, center, timestep);
+    if (input::key_pressed(engine::key_codes::KEY_W)) // up
+        radial_move(e_direction::up,radius, center, timestep);
+    if (input::key_pressed(engine::key_codes::KEY_S)) // down
+        radial_move(e_direction::down,radius, center, timestep);
+    
+    
+}
 void engine::perspective_camera::on_update(const timestep& timestep)
 {
 	auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
@@ -112,8 +126,8 @@ void engine::perspective_camera::on_update(const timestep& timestep)
 
     //else if (input::key_pressed(engine::key_codes::KEY_LEFT_CONTROL))
     //    move(e_direction::down, timestep);
-
-    move(e_direction::forward,timestep);
+    
+    
    
     //float delta = input::mouse_scroll();
     //process_mouse_scroll(delta);
@@ -180,10 +194,27 @@ void engine::perspective_camera::rail_move(timestep ts)
     m_position += s_movement_speed * ts * m_front_vector;
 }
 
-void engine::perspective_camera::radial_move( e_direction dir,float speed, glm::vec3 center, timestep ts)
+void engine::perspective_camera::radial_move( e_direction dir,float radius, glm::vec3 center, timestep ts)
 {
-    glm::vec3 radius = m_position - center;
-    
+    glm::vec3 v_radius =glm::normalize( m_position - center);
+    float speed_mul = glm::length(glm::cross(v_radius, glm::vec3(0.f, 1.f, 0.f)));
+
+    if (dir == forward)
+        m_position += s_movement_speed * ts * m_front_vector;
+    if (dir == backward)
+        m_position -= s_movement_speed * ts * m_front_vector;
+
+    if (dir == left)
+        m_position -= s_movement_speed * ts * m_right_vector;
+    if (dir == right)
+        m_position += s_movement_speed * ts * m_right_vector;
+    if (dir == up)
+        m_position += s_movement_speed * ts * m_up_vector;
+    if (dir == down)
+        m_position -= s_movement_speed * ts * m_up_vector;
+
+    m_position = center + (radius * glm::normalize(m_position-center));
+    //std::cout << "length:" << glm::length(m_position - center)<<std::endl;
 
 
 }
@@ -262,3 +293,15 @@ void engine::perspective_camera::update_camera_vectors()
     m_up_vector   = glm::normalize(glm::cross(m_right_vector, m_front_vector));
     update_view_matrix();
 }
+void engine::perspective_camera::update_camera_vectors(glm::vec3 look_dir)
+{
+    
+    m_front_vector = glm::normalize(look_dir);
+    
+    m_right_vector = glm::normalize(glm::cross(m_front_vector, m_up_vector));
+    m_up_vector = glm::normalize(glm::cross(m_right_vector, m_front_vector));
+    std::cout << glm::length(m_front_vector) << glm::length(m_right_vector) << glm::length(m_up_vector) << std::endl;
+    update_view_matrix();
+    
+}
+

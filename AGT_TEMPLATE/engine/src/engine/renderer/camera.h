@@ -99,7 +99,7 @@ namespace engine
     const float YAW         = -90.0f;
     const float PITCH       =  0.0f;
     const float ROLL        =  0.0f;
-    const float SPEED       =  5.f;
+    const float SPEED       =  100.f;
     const float SENSITIVITY =  0.1f;
     const float ZOOM        =  45.0f;
 
@@ -123,6 +123,7 @@ namespace engine
             float near_z = 0.1f, float far_z = 200.f);
 
         void on_update(const timestep& timestep) override;
+        void on_update(const timestep& timestep, glm::vec3 center, float radius);
 
         glm::vec3 position() const override { return m_position; }
         void position(const glm::vec3& pos) override { m_position = pos; update_view_matrix(); }
@@ -147,9 +148,10 @@ namespace engine
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
         void move(e_direction direction, timestep ts);
         void rail_move( timestep ts);
-        void radial_move(e_direction dir, float speed, glm::vec3 center, timestep ts);
+        void radial_move(e_direction dir, float radius, glm::vec3 center, timestep ts);
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);
         void update_camera_vectors();
+        void update_camera_vectors(glm::vec3 look_dir);
         void update_view_matrix(); 
 
     private: 
