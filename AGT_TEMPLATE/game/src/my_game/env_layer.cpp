@@ -22,6 +22,13 @@ m_cam((float)engine::application::window().width(), (float)engine::application::
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("lighting_on", true);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("gColorMap", 0);
 	m_directionalLight.submit(mesh_shader);
+	m_pointLight.Color = glm::vec3(1.0f, 0.0f, 0.0f);
+	m_pointLight.AmbientIntensity = 0.f;
+	m_pointLight.DiffuseIntensity = 1.6f;
+	m_pointLight.Position = closest_center;
+	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+		set_uniform("gNumPointLights", (int)num_point_lights);
+	m_pointLight.submit(mesh_shader, 0);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("gMatSpecularIntensity", 1.f);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("gSpecularPower", 10.f);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("transparency", 1.0f);
@@ -46,14 +53,16 @@ m_cam((float)engine::application::window().width(), (float)engine::application::
 	planet.push_back(engine::game_object::create(core_props));
 	}
 	
-	base_mat = engine::material::create(1.0f, glm::vec3(1.0f, 0.1f, 0.07f),
-		glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
+	base_mat = engine::material::create(1.0f, glm::vec3(1.0f, 1.f, 1.f),
+		glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
+	m_lightsource_material = engine::material::create(1.0f, glm::vec3(1.0f, 0.f, 0.f),
+		glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 	m_text_manager = engine::text_manager::create();
 }
 env_layer::~env_layer() {}
 void env_layer::on_update(const engine::timestep& time_step)
 {
-	int count = 100;
+	int count =250;
 	// smae thing as start in unity
 	if (start)
 	{
@@ -72,8 +81,8 @@ void env_layer::on_update(const engine::timestep& time_step)
 			// boid setup
 			
 			Boid temp_boid;
-			temp_boid.position = get_random_inside_unit_sphere() * 25.f;
-			temp_boid.velocity= get_random_inside_unit_sphere() * 25.f;
+			temp_boid.position = get_random_inside_unit_sphere() * 20.f;
+			temp_boid.velocity= get_random_inside_unit_sphere() * 30.f;
 			tetrahedron_props.position = map2DToSphere(temp_boid.position.x, temp_boid.position.y, 100, 100, 25);
 			tetrahedron_props.meshes = { tetrahedron_shape->mesh() };
 			auto temp_object = engine::game_object::create(tetrahedron_props);
@@ -91,9 +100,9 @@ void env_layer::on_update(const engine::timestep& time_step)
 	{
 		
 		enemies[i]->set_position(boids[i].position);
-		enemies[i]->turn_towards(closest_center - enemies[i]->position());
+		enemies[i]->turn_towards(boids[i].velocity);
 	}
-
+	
 	glm::vec3 rot_euler;
 	//top half rotate
 	rot_euler = planet[5]->rotation_euler();
@@ -136,7 +145,7 @@ void env_layer::on_update(const engine::timestep& time_step)
 	planet[8]->set_rotation_euler(rot_euler);
 
 
-	m_cam.on_update(time_step,closest_center,60.f);
+	m_cam.on_update(time_step,closest_center,40.f);
 
 }
 void env_layer::on_render()
@@ -154,15 +163,27 @@ void env_layer::on_render()
 	}
 	engine::renderer::submit(mesh_shader, m_skybox, skybox_tranform);
 	
-	for(engine::ref<engine::game_object> obj: planet)
+	for(int i=0;i<planet.size();i++)
 	{
-			
+		engine::ref<engine::game_object> obj = planet[i];
 		base_mat->submit(mesh_shader);
 		
 		glm::mat4 obj_transform(1.f);
 		obj_transform = glm::translate(obj_transform, obj->position());
 		obj_transform = rotateEuler(obj->rotation_euler(),obj_transform);
 		obj_transform = glm::scale(obj_transform, obj->scale());
+		if (i== 0)
+		{
+			std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+				set_uniform("lighting_on", false);
+
+			m_lightsource_material->submit(mesh_shader);
+			engine::renderer::submit(mesh_shader, planet[0]->meshes().at(0),
+				obj_transform);
+			std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+				set_uniform("lighting_on", true);
+		}
+		else	
 		engine::renderer::submit(mesh_shader,obj_transform, obj);
 		
 	}
@@ -176,7 +197,7 @@ void env_layer::on_render()
 	}
 	engine::renderer::end_scene();
 	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
-	m_text_manager->render_text(text_shader, "Orange Text", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+	m_text_manager->render_text(text_shader, "WASD to move radially", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 	
 	
 }
@@ -213,10 +234,10 @@ glm::vec3 env_layer:: get_random_inside_unit_sphere()
 
 void env_layer:: updateBoids(std::vector<Boid>& boids, float deltaTime) {
 	// Define behavior parameters
-	float separationRadius = 5.0f;
-	float alignmentRadius = 5.0f;
-	float cohesionRadius = 7.5f;
-	float maxSpeed = 20.0f;
+	float separationRadius = 3.0f;
+	float alignmentRadius = 3.0f;
+	float cohesionRadius = 3.f;
+	float maxSpeed = 50.0f;
 
 	for (Boid& boid : boids) {
 		// Update the boid's position based on its velocity and time step
@@ -244,13 +265,13 @@ void env_layer:: updateBoids(std::vector<Boid>& boids, float deltaTime) {
 		}
 
 		// Adjust the boid's velocity based on the behavior rules
-		boid.velocity += 0.1f * separation + 0.05f * alignment + 0.002f * cohesion;
+		boid.velocity += 0.8f * separation + 0.05f * alignment + 0.001f * cohesion;
 		float speed = glm::length(boid.velocity);
 		if (glm::length(boid.position - closest_center) > 20.f)
-			boid.velocity -= glm::normalize(boid.position - closest_center) *0.5f;
-		 if (glm::length(boid.position - closest_center) < 20.f)
+			boid.velocity -= (boid.position - closest_center) *0.1f;
+		 if (glm::length(boid.position - closest_center) <= 20.f)
 		{
-			boid.velocity += glm::normalize(boid.position - closest_center) * 0.5f;
+			 boid.velocity += (boid.position - closest_center) * 1.f;
 		}
 		if (speed > maxSpeed) {
 			boid.velocity = (boid.velocity / speed) * maxSpeed;

@@ -84,8 +84,8 @@ void engine::renderer_api::enable_alpha()
 
 void engine::renderer_api::enable_culling()
 {
-    glEnable(GL_CULL_FACE); 
-    glCullFace(GL_BACK); 
+    //glEnable(GL_CULL_FACE); 
+    //glCullFace(GL_BACK); 
 }
 
 void engine::renderer_api::enable_depth_mask()

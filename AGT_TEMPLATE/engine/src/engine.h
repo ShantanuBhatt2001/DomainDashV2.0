@@ -14,7 +14,7 @@
 // ---renderer------------------------
 #include "engine/renderer/renderer.h"
 #include "engine/renderer/render_command.h"
-#include "engine/entities/shapes/tetrahedron.h"
+
 
 #include "engine/renderer/buffer.h"
 #include "engine/renderer/shader.h"
@@ -31,6 +31,7 @@
 #include "engine/entities/game_object.h"
 #include "engine/entities/shapes/cuboid.h"
 #include "engine/entities/shapes/sphere.h"
+#include "engine/entities/shapes/tetrahedron.h"
 #include "engine/entities/terrain.h"
 #include "engine/entities/skybox.h"
 

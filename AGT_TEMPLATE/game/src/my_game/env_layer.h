@@ -36,7 +36,9 @@ private:
 	engine::perspective_camera m_cam;
 	//lights
 	engine::DirectionalLight            m_directionalLight;//world directional light
-
+	engine::PointLight m_pointLight;
+	uint32_t num_point_lights = 1;
+	engine::ref<engine::material> m_lightsource_material{ };
 	bool start = true;// bool for start of render
 public:
 	env_layer();
