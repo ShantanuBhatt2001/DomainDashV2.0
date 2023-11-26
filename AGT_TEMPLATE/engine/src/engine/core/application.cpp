@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 #include "engine/utils/timer.h"
 
+
 //----------------------------------------------------------------------------- 
 
 engine::application* engine::application::s_instance{ nullptr }; 
@@ -29,18 +30,35 @@ engine::application::~application()
 
 void engine::application::run()
 {
+    
 	engine::timer gameLoopTimer;
+    const timestep TICK_TIME(1.f / 100.f);
+    m_last_frame_time = static_cast<float>(glfwGetTime());
 	gameLoopTimer.start();
 	while (s_running)
 	{
-		timestep time_step = (float)gameLoopTimer.elapsed();
-		gameLoopTimer.reset();
-		for (auto* layer : m_layers_stack)
-		{
-			layer->on_update(time_step);
-			if (!application::s_minimized)
-				layer->on_render();
-		}
+        const auto time = static_cast<float>(glfwGetTime());
+        float time_elapsed = time- m_last_frame_time;
+        while (time_elapsed >= TICK_TIME) {
+            time_elapsed -= TICK_TIME;
+            for (auto* layer : m_layers_stack)
+            {
+                if(layer->is_active())
+                layer->on_update(TICK_TIME);
+                
+            }
+            m_last_frame_time = time - time_elapsed;
+        }
+        for (auto* layer : m_layers_stack)
+        {
+            if(layer->is_active())
+                layer->on_render();
+            
+                
+        }
+
+        const auto end_time = static_cast<float>(glfwGetTime());
+        Sleep((DWORD)(std::max(0.0f, TICK_TIME.seconds() - (end_time - time))));
 		m_window->on_update();
 	}
 }
@@ -67,7 +85,24 @@ void engine::application::on_event(event& event)
 void engine::application::push_layer(layer* layer) 
 { 
     m_layers_stack.push_layer(layer); 
-} 
+}
+
+void engine::application::pop_layer(layer* layer)
+{
+    for (auto i : m_layers_stack)
+    {
+        if(i==layer)
+            layer->set_active(false);
+    }
+    engine::render_command::clear_color({ 0.2f, 0.3f, 0.3f, 1.0f });
+    engine::render_command::clear();
+    std::cout << "poppingLayer";
+    
+}
+void engine::application::pop_overlay(layer* overlay)
+{
+    m_layers_stack.pop_overlay(overlay);
+}
 
 void engine::application::push_overlay(layer* overlay) 
 { 
@@ -99,4 +134,8 @@ bool engine::application::on_window_resized(window_resize_event &e)
 void engine::application::exit() 
 { 
     s_running = false; 
-} 
+}
+void engine::application::removelayer(layer* delLayer)
+{
+    m_layers_stack.pop_layer(delLayer);
+}

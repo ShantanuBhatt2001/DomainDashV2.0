@@ -82,10 +82,12 @@ void engine::renderer_api::enable_alpha()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 }
 
+//added culling to get double faced materials
+
 void engine::renderer_api::enable_culling()
 {
-    glEnable(GL_CULL_FACE); 
-    glCullFace(GL_BACK); 
+    //glEnable(GL_CULL_FACE); 
+    //glCullFace(GL_BACK); 
 }
 
 void engine::renderer_api::enable_depth_mask()

@@ -18,6 +18,7 @@ namespace engine
         glm::vec3 velocity{0};
         glm::vec3 scale{1};
 	    glm::vec3 bounding_shape{0};
+		glm::vec3 rotation{ 0 };
 	    glm::vec3 rotation_axis{0.f, 1.f, 0.f};
         int32_t type = 0;
         float mass = 1.f;
@@ -26,6 +27,7 @@ namespace engine
         float rotation_amount = 0.f;
         bool is_static = false;
 	};
+
 
 
 	/// \brief Base class for storing the physical information about the objects in the game
@@ -55,7 +57,7 @@ namespace engine
 		float     rotation_amount() const { return m_rotation_amount; }
 		glm::vec3 angular_velocity() const { return m_angular_velocity; }
 		glm::vec3 torque() const { return m_torque; }
-
+		glm::vec3 rotation_euler()const { return m_rotation_euler; }
 		glm::vec3 scale() const { return m_scale; }
 		bool      is_static() const { return s_static; }
 		bool	  lock_angular_factor() const { return s_lock_angular_factor; }
@@ -84,7 +86,7 @@ namespace engine
 		void set_rotation_amount(float rotation_amount) { m_rotation_amount = rotation_amount; }
 		void set_angular_velocity(glm::vec3 angular_velocity) { m_angular_velocity = angular_velocity; }
 		void set_torque(glm::vec3 torque) { m_torque = torque; }
-
+		void set_rotation_euler(glm::vec3 rot_euler) { m_rotation_euler = rot_euler; }
 		void set_scale(glm::vec3 scale) { m_scale = scale; }
 		void set_mass(float mass) { m_mass = mass; }
 		void set_type(int32_t type) { m_type = type; }
@@ -133,7 +135,8 @@ namespace engine
 		glm::vec3		m_rotation_axis{ 0.0f, 1.0f, 0.0f };
 		// object's rotation amount
 		float			m_rotation_amount{ 0.f };
-
+		//object's rotation in euler angles
+		glm::vec3       m_rotation_euler{ 0.f,0.f,0.f };
 		// object's angular velocity vector
 		glm::vec3		m_angular_velocity{ 0.0f };
 		// object's torque vector

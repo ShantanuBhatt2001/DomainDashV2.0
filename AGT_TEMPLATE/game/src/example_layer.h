@@ -20,9 +20,10 @@ private:
 	engine::ref<engine::game_object>	m_tree{};
 	engine::ref<engine::game_object>	m_ball{};
 	engine::ref<engine::game_object>	m_mannequin{};
-
+	engine::ref<engine::game_object>	m_tetrahedron{};
 	engine::ref<engine::material>		m_material{};
 	engine::ref<engine::material>		m_mannequin_material{};
+	engine::ref<engine::material> m_tetrahedron_material{};
 
 	engine::DirectionalLight            m_directionalLight;
 

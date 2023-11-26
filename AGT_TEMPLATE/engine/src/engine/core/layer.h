@@ -28,7 +28,8 @@ namespace engine
 		/// \brief Gives you the name of the layer [for debug]
 		const std::string& name() const { return m_debug_name; }
 		bool is_imgui() const { return m_imgui; }
-
+		bool is_active() { return m_is_active; }
+		void set_active(bool val) { m_is_active = val; }
 	protected:
 		std::string m_debug_name{};
 
@@ -36,5 +37,6 @@ namespace engine
 		bool		m_imgui{ false };
 
 		//TODO: enabling/disabling layer
+		bool m_is_active = true;
 	};
 }

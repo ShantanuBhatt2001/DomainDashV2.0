@@ -17,6 +17,8 @@ namespace engine
         application();
         virtual ~application();
 
+
+        void removelayer(layer* delLayer);
         /// \brief
         void run();
 
@@ -27,12 +29,24 @@ namespace engine
         void push_layer(layer *layer);
         /// \brief Adds a overlay to the stack.
         void push_overlay(layer *overlay);
-
+        void pop_overlay(layer* overlay);
+        void pop_layer(layer* layer);
         /// \brief Returns a reference to the application window.
         static window& window() { return *(s_instance->m_window); } 
 
         /// \brief Returns a reference to the application.
         static application& instance() { return *s_instance; }
+        static int& layerCount() {
+            int count = 0;
+            std::cout << "count:" << count << std::endl;
+            for (auto layer : s_instance->m_layers_stack)
+            {
+                std::cout << "count:" << count<<std::endl;
+                count++;
+            }
+                
+            return count;
+        }
 
     private:
         bool on_window_close(window_closed_event &e);

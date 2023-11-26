@@ -56,12 +56,12 @@ example_layer::example_layer()
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
 	m_skybox = engine::skybox::create(50.f,
-		{ engine::texture_2d::create("assets/textures/skybox/SkyboxFront.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxRight.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBack.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxLeft.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxTop.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBottom.bmp", true)
+		{ engine::texture_2d::create("assets/textures/skybox/front.png", true),
+		  engine::texture_2d::create("assets/textures/skybox/right.png", true),
+		  engine::texture_2d::create("assets/textures/skybox/back.png", true),
+		  engine::texture_2d::create("assets/textures/skybox/left.png", true),
+		  engine::texture_2d::create("assets/textures/skybox/top.png", true),
+		  engine::texture_2d::create("assets/textures/skybox/bottom.png", true)
 		});
 
 	engine::ref<engine::skinned_mesh> m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
@@ -122,9 +122,20 @@ example_layer::example_layer()
 	sphere_props.restitution = 0.92f;
 	sphere_props.mass = 0.000001f;
 	m_ball = engine::game_object::create(sphere_props);
-
+	std::vector<glm::vec3> tetrahedron_vertices;
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 10.f, 0.f)); //0
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 0.f, 10.f)); //1
+	tetrahedron_vertices.push_back(glm::vec3(-10.f, 0.f, -10.f)); //2
+	tetrahedron_vertices.push_back(glm::vec3(10.f, 0.f, -10.f)); //3
+	engine::ref<engine::tetrahedron> tetrahedron_shape =
+		engine::tetrahedron::create(tetrahedron_vertices);
+	engine::game_object_properties tetrahedron_props;
+	tetrahedron_props.position = { 0.f, 0.5f, -20.f };
+	tetrahedron_props.meshes = { tetrahedron_shape->mesh() };
+	m_tetrahedron = engine::game_object::create(tetrahedron_props);
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
+	//m_game_objects.push_back(m_tetrahedron);
 	//m_game_objects.push_back(m_cow);
 	//m_game_objects.push_back(m_tree);
 	//m_game_objects.push_back(m_pickup);
@@ -172,7 +183,7 @@ void example_layer::on_render()
 	engine::renderer::submit(mesh_shader, m_skybox, skybox_tranform);
 
 	engine::renderer::submit(mesh_shader, m_terrain);
-
+	
 	glm::mat4 tree_transform(1.0f);
 	tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
 	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
@@ -187,7 +198,7 @@ void example_layer::on_render()
 
 	m_material->submit(mesh_shader);
 	engine::renderer::submit(mesh_shader, m_ball);
-
+	engine::renderer::submit(mesh_shader, m_tetrahedron);
 	m_mannequin_material->submit(mesh_shader);
 	engine::renderer::submit(mesh_shader, m_mannequin);
 

@@ -54,6 +54,7 @@ namespace engine
         }; 
 
     public:
+        
         orthographic_camera(float left, float right, float bottom, float top);
     
         void on_update(const timestep& timestep) override{};
@@ -83,7 +84,7 @@ namespace engine
         glm::mat4   m_projection_mat{1};
         glm::mat4   m_view_mat{1};
         glm::mat4   m_view_projection_mat{1};
-
+       
         glm::vec3   m_position{0};
         float       m_rotation{0};
 
@@ -98,7 +99,8 @@ namespace engine
     // Default camera values
     const float YAW         = -90.0f;
     const float PITCH       =  0.0f;
-    const float SPEED       =  2.5f;
+    const float ROLL        =  0.0f;
+    const float SPEED       =  50.f;
     const float SENSITIVITY =  0.1f;
     const float ZOOM        =  45.0f;
 
@@ -110,17 +112,20 @@ namespace engine
             forward = 0, 
             backward, 
             left, 
-            right 
+            right,
+            up,
+            down
         };
 
     public: 
         perspective_camera( 
             float width, float height,  
             float fov = 45.f,  
-            float near_z = 0.1f, float far_z = 100.f);
+            float near_z = 0.1f, float far_z = 200.f);
 
         void on_update(const timestep& timestep) override;
-
+        void on_update(const timestep& timestep, glm::vec3 center, float radius);
+        void pos_update(glm::vec3 pos,glm::vec3 center);
         glm::vec3 position() const override { return m_position; }
         void position(const glm::vec3& pos) override { m_position = pos; update_view_matrix(); }
 
@@ -142,16 +147,21 @@ namespace engine
 
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
-        void move(e_direction direction, timestep ts); 
+        void move(e_direction direction, timestep ts);
+        void rail_move( timestep ts);
+        void radial_move(e_direction dir, float radius, glm::vec3 center, timestep ts);
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);
         void update_camera_vectors();
+        void update_camera_vectors(glm::vec3 look_dir);
         void update_view_matrix(); 
 
     private: 
         glm::mat4   m_projection_mat{1}; 
         glm::mat4   m_view_mat{1}; 
         glm::mat4   m_view_projection_mat{1}; 
-
+        glm::vec3   m_accel{ 0 };
+        glm::vec3   m_velocity{ 0 };
+        float       m_drag = 10.f;
         glm::vec3   m_position{0.f}; 
         /// \brief rotation angles for each axis in degrees. 
         glm::vec3   m_rotation_angle{0.f}; 
