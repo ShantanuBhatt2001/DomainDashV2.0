@@ -77,7 +77,7 @@ private:
 	//follow enemy acceleration
 	engine::ref<engine::game_object> follow_object;
 	std::vector<follow_enemy> follow_enemies;
-	float follow_accel = 0.01f;
+	float follow_accel = 60.f;
 
 	void update_follow( const engine::timestep& time_step);
 	// mortar enemy struct

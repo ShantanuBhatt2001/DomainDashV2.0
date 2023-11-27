@@ -101,7 +101,7 @@ mainscene_layer::mainscene_layer() :
 		// boid setup
 
 		spawn_ship temp_boid;
-		temp_boid.position = get_random_inside_unit_sphere() * 10.f;
+		temp_boid.position = get_random_inside_unit_sphere() * 6.f;
 		
 		glm::vec3 origin_vec = active_planet.position - temp_boid.position;
 		glm::vec3 up_vec = glm::cross(get_random_inside_unit_sphere(), origin_vec);
@@ -115,15 +115,16 @@ mainscene_layer::mainscene_layer() :
 
 	//follow enemies initialization
 	follow_mat= engine::material::create(1.0f, glm::vec3(1.0f, 0.f, 0.f),
-		glm::vec3(1.0f, 0.f, 0.f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
-	engine::ref<engine::sphere> follow_shape = engine::sphere::create(10, 20, 1.f);
+		glm::vec3(1.0f, 0.f, 0.f), glm::vec3(0.5f, 0.5f, 0.5f),1.f);
+	engine::ref<engine::sphere> follow_shape = engine::sphere::create(10, 20, 0.5f);
 	engine::game_object_properties follow_props;
 	follow_props.meshes = { follow_shape->mesh() };
 	follow_props.bounding_shape = glm::vec3(0.1f);
 	follow_object = engine::game_object::create(follow_props);
 
 	follow_enemy temp;
-	temp.position = get_random_inside_unit_sphere() * 6.f;
+	temp.position = get_random_inside_unit_sphere() * 10.f;
+	temp.active_planet = active_planet;
 	follow_enemies.push_back(temp);
 
 }
@@ -167,18 +168,19 @@ void mainscene_layer::on_render()
 	//planet render
 
 	planet_mat->submit(mesh_shader);
-	/*for (int i = 0; i < world_planets.size(); i++)
+	for (int i = 0; i < world_planets.size(); i++)
 	{
 		glm::mat4 obj_transform(1.f);
 		
 		obj_transform = glm::translate(obj_transform, world_planets[i].position);
 		obj_transform = glm::scale(obj_transform, glm::vec3{ world_planets[i].radius });
 		engine::renderer::submit(mesh_shader, obj_transform, planet_gameObjects[i]);
-	}*/
+	}
 
 
 	player_mat->submit(mesh_shader);
 	glm::mat4 player_transform(1.f);
+
 	player_transform=glm::translate(player_transform, m_player.position);
 	engine::renderer::submit(mesh_shader, player_transform, player_object);
 
@@ -203,6 +205,7 @@ void mainscene_layer::on_render()
 		
 		glm::mat4 obj_transform(1.f);
 		obj_transform = glm::translate(obj_transform, follow_enemies[i].position);
+		obj_transform = glm::scale(obj_transform, follow_object->scale());
 		std::cout << follow_enemies[i].position << std::endl;
 		
 
@@ -273,12 +276,15 @@ void mainscene_layer::update_follow( const engine::timestep& time_step)
 
 	for (follow_enemy& follow_instance : follow_enemies)
 	{
-
-		glm::vec3  player_vec = -m_player.position + follow_instance.position;
+		follow_instance.accel = glm::vec3{ 0.f };
+		glm::vec3  player_vec = m_player.position - follow_instance.position;
 		glm::vec3 origin_vec = follow_instance.active_planet.position - follow_instance.position;
-		follow_instance.accel = glm::normalize((m_player.position - follow_instance.position) - (glm::dot(player_vec, origin_vec) * origin_vec)) * 50.f;
-		follow_instance.accel += glm::normalize(follow_instance.active_planet.position - (follow_instance.position) * 20.f * glm::length(follow_instance.active_planet.position - follow_instance.position));
-		follow_instance.position = follow_instance.velocity * (float)time_step;
+		follow_instance.accel = glm::normalize(player_vec+origin_vec) * follow_accel;
+		follow_instance.accel += origin_vec * 20.f;
+
+		follow_instance.accel += -(follow_instance.velocity - glm::dot(follow_instance.velocity, glm::normalize(origin_vec)) * glm::normalize(origin_vec)) * 5.f;
+
+		follow_instance.position += follow_instance.velocity * (float)time_step;
 		follow_instance.velocity += follow_instance.accel * (float)time_step;
 
 		if (glm::length(follow_instance.position - follow_instance.active_planet.position) <= 6.f)
