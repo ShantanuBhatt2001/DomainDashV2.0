@@ -5,7 +5,7 @@
 #include<string>
 #include "cross_fade.h"
 
-class env_layer : public engine::layer
+class menu_layer : public engine::layer
 {
 
 private:
@@ -69,8 +69,8 @@ private:
 	engine::ref<engine::game_object> player;
 	bool canJump = true;// bool for start of render
 public:
-	env_layer();
-	~env_layer();
+	menu_layer();
+	~menu_layer();
 	void on_update(const engine::timestep& time_step) override;
 	void on_render() override;
 	void on_event(engine::event& event) override;

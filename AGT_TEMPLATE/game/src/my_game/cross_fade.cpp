@@ -23,10 +23,8 @@ void cross_fade::on_update(const engine::timestep& time_step)
 
 	m_timer += (float)time_step;
 
-	m_transparency = 1.f - 1.f * m_timer / m_max_time;
-
-	if (m_timer > m_max_time)
-		s_active = false;
+	
+	
 }
 
 void cross_fade::on_render(engine::ref<engine::shader> shader)
@@ -57,6 +55,11 @@ void cross_fade::activate()
 	m_timer = 0.0f;
 }
 
+void cross_fade::deactivate()
+{
+	s_active = false;
+	m_transparency = 0.f;
+}
 
 engine::ref<cross_fade> cross_fade::create(const std::string& path, float max_time, float width, float height)
 {

@@ -1,4 +1,4 @@
-#include "env_layer.h"
+#include "menu_layer.h"
 #include "platform/opengl/gl_shader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,7 +7,7 @@
 #include "engine/utils/track.h"
 
 const double goldenRatio = 1.61803398874989484820458683436;
-env_layer::env_layer():
+menu_layer::menu_layer():
 m_2d_cam(-1.6f, 1.6f, -0.9f, 0.9f),
 m_3d_cam((float)engine::application::window().width(), (float)engine::application::window().height())
 {
@@ -167,8 +167,8 @@ m_3d_cam((float)engine::application::window().width(), (float)engine::applicatio
 		glm::vec3(1.0f, 1.f, 1.f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 	m_text_manager = engine::text_manager::create();
 }
-env_layer::~env_layer() {}
-void env_layer::on_update(const engine::timestep& time_step)
+menu_layer::~menu_layer() {}
+void menu_layer::on_update(const engine::timestep& time_step)
 {
 
 	//rotating sphere barrier
@@ -284,7 +284,7 @@ void env_layer::on_update(const engine::timestep& time_step)
 
 	m_cross_fade->on_update(time_step);
 }
-void env_layer::on_render()
+void menu_layer::on_render()
 {
 	//render setup
 	engine::render_command::clear_color({ 0.2f, 0.3f, 0.3f, 1.0f });
@@ -309,38 +309,38 @@ void env_layer::on_render()
 
 
 	
-	//for (int i = 0; i < prot_count; i++)
-	//{
-	//	//conversion of r, theta, phi to x,y,z
-	//	float r = sphere_pos[i].x;
-	//	float theta = sphere_pos[i].y;
-	//	float phi = sphere_pos[i].z;
-	//	float x = 6 * cos(theta) * sin(phi);
-	//	float y = 6 * sin(theta) * sin(phi);
-	//	float z = 6 * cos(phi);
+	for (int i = 0; i < prot_count; i++)
+	{
+		//conversion of r, theta, phi to x,y,z
+		float r = sphere_pos[i].x;
+		float theta = sphere_pos[i].y;
+		float phi = sphere_pos[i].z;
+		float x = 6 * cos(theta) * sin(phi);
+		float y = 6 * sin(theta) * sin(phi);
+		float z = 6 * cos(phi);
 
-	//	glm::mat4 obj_transform(1.f);
-	//	obj_transform = glm::translate(obj_transform, glm::vec3(x,y,z));
-	//	obj_transform = glm::rotate(obj_transform, protection_sphere->rotation_amount(), protection_sphere->rotation_axis());
-	//	obj_transform = glm::scale(obj_transform, protection_sphere->scale());
-	//	engine::renderer::submit(mesh_shader, obj_transform, protection_sphere);
+		glm::mat4 obj_transform(1.f);
+		obj_transform = glm::translate(obj_transform, glm::vec3(x,y,z));
+		obj_transform = glm::rotate(obj_transform, protection_sphere->rotation_amount(), protection_sphere->rotation_axis());
+		obj_transform = glm::scale(obj_transform, protection_sphere->scale());
+		engine::renderer::submit(mesh_shader, obj_transform, protection_sphere);
 
-	//	//render of guns for protection sphere
-	//	gun_mat->submit(mesh_shader);
-	//	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-	//		set_uniform("lighting_on", false);
-	//	gun->turn_towards(glm::vec3(x,y,z)-closest_center);
-	//	obj_transform = glm::mat4(1.f);
-	//	obj_transform = glm::translate(obj_transform, glm::vec3(x, y, z));
-	//	obj_transform = glm::rotate(obj_transform, gun->rotation_amount(), gun->rotation_axis());
-	//	obj_transform = glm::scale(obj_transform, gun->scale());
-	//	engine::renderer::submit(mesh_shader, obj_transform, gun);
-	//	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-	//		set_uniform("lighting_on", true);
-	//	base_mat->submit(mesh_shader);
-	//}
-	//std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-	//	set_uniform("lighting_on", true);
+		//render of guns for protection sphere
+		gun_mat->submit(mesh_shader);
+		std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+			set_uniform("lighting_on", false);
+		gun->turn_towards(glm::vec3(x,y,z)-closest_center);
+		obj_transform = glm::mat4(1.f);
+		obj_transform = glm::translate(obj_transform, glm::vec3(x, y, z));
+		obj_transform = glm::rotate(obj_transform, gun->rotation_amount(), gun->rotation_axis());
+		obj_transform = glm::scale(obj_transform, gun->scale());
+		engine::renderer::submit(mesh_shader, obj_transform, gun);
+		std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+			set_uniform("lighting_on", true);
+		base_mat->submit(mesh_shader);
+	}
+	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+		set_uniform("lighting_on", true);
 
 
 
@@ -432,7 +432,7 @@ void env_layer::on_render()
 	engine::renderer::end_scene();
 	
 }
-void env_layer::on_event(engine::event& event)
+void menu_layer::on_event(engine::event& event)
 {
 
 	//tab to control wireframe
@@ -447,7 +447,7 @@ void env_layer::on_event(engine::event& event)
 		}
 		if (e.key_code() == engine::key_codes::KEY_ENTER && m_cross_fade->is_active())
 		{
-			m_cross_fade->activate();
+			m_cross_fade->deactivate();
 		}
 		if (e.key_code() == engine::key_codes::KEY_SPACE && isPlay())
 		{
@@ -464,18 +464,21 @@ void env_layer::on_event(engine::event& event)
 			std::cout << "Exit";
 			engine::application::exit();
 		}
+		
 		/*if (e.key_code() == engine::key_codes::key_1)
 		{
 			
 			engine::application::instance().pop_layer(this);
 		}*/
+
+		
 	}
 
 	
 }
 
 //used to rotate and object using euler angles
-glm::mat4 env_layer::rotateEuler(glm::vec3 rot_angles, glm::mat4 matrix)
+glm::mat4 menu_layer::rotateEuler(glm::vec3 rot_angles, glm::mat4 matrix)
 {
 	matrix = glm::rotate(matrix, rot_angles.x, glm::vec3(1.f, 0.f, 0.f));
 	matrix = glm::rotate(matrix, rot_angles.y, glm::vec3(0.f, 1.f, 0.f));
@@ -485,7 +488,7 @@ glm::mat4 env_layer::rotateEuler(glm::vec3 rot_angles, glm::mat4 matrix)
 
 
 //used to get a radom vector in 3d space of unit magnitude using equal area projection
-glm::vec3 env_layer:: get_random_inside_unit_sphere()
+glm::vec3 menu_layer:: get_random_inside_unit_sphere()
 {
 	float theta = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2*glm::pi<float>())));
 	float z= (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/2.f)))-1.f;
@@ -496,7 +499,7 @@ glm::vec3 env_layer:: get_random_inside_unit_sphere()
 	return random_vec;
 }
 
-void env_layer:: updateBoids(std::vector<Boid>& boids, float deltaTime) {
+void menu_layer:: updateBoids(std::vector<Boid>& boids, float deltaTime) {
 	// Define behavior parameters
 	float separationRadius = 10.0f;
 	float alignmentRadius = 5.0f;
@@ -550,7 +553,7 @@ void env_layer:: updateBoids(std::vector<Boid>& boids, float deltaTime) {
 }
 
 //not really using this right now, it was an experiment
-glm::vec3 env_layer::map2DToSphere(double x, double y, double screenWidth, double screenHeight, double sphereRadius) {
+glm::vec3 menu_layer::map2DToSphere(double x, double y, double screenWidth, double screenHeight, double sphereRadius) {
 	// Convert 2D coordinates to spherical coordinates
 	double phi = glm::pi<double>() * (y / screenHeight);  // Latitude
 	double theta = 2 * glm::pi<double>() * (x / screenWidth);  // Longitude
@@ -568,7 +571,7 @@ glm::vec3 env_layer::map2DToSphere(double x, double y, double screenWidth, doubl
 	return glm::vec3(sphereX, sphereY, sphereZ);
 }
 
-bool env_layer::isPlay()
+bool menu_layer::isPlay()
 {
 	bool is_play = false;
 	if (glm::length(player_position - PLAY->position()) <= 3.f)
@@ -576,7 +579,7 @@ bool env_layer::isPlay()
 	return is_play;
 }
 
-bool env_layer::isHelp()
+bool menu_layer::isHelp()
 {
 	bool is_play = false;
 	if (glm::length(player_position - HELP->position()) <= 3.f)
@@ -584,7 +587,7 @@ bool env_layer::isHelp()
 	return is_play;
 }
 
-bool env_layer::isExit()
+bool menu_layer::isExit()
 {
 	bool is_play = false;
 	if (glm::length(player_position - EXIT->position()) <= 3.f)
