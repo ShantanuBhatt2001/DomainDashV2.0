@@ -434,7 +434,8 @@ void menu_layer::on_render()
 }
 void menu_layer::on_event(engine::event& event)
 {
-
+	if (!this->is_active())
+		return;
 	//tab to control wireframe
 	//Enter to exit out of menu
 	if (event.event_type() == engine::event_type_e::key_pressed)

@@ -55,11 +55,13 @@ private:
 		glm::vec3 acccel{ 0.f };
 		
 		};
-	engine::ref<engine::game_object> boid_object;
+	engine::ref<engine::game_object> spawn_object;
 	std::vector<spawn_ship> spawn_ships;
 	//count of boid enemies
 	int count = 200;
-	void update_boid(spawn_ship & spawn_ship_instance);
+	void update_boid( const engine::timestep& time_step);
+	std::string ship_loc = "assets/models/static/ship.fbx";
+
 
 
 	//follow enemy struct
@@ -75,9 +77,9 @@ private:
 	//follow enemy acceleration
 	engine::ref<engine::game_object> follow_object;
 	std::vector<follow_enemy> follow_enemies;
-	float follow_accel = 50.f;
+	float follow_accel = 0.01f;
 
-	void update_follow(follow_enemy& follow_instance);
+	void update_follow( const engine::timestep& time_step);
 	// mortar enemy struct
 
 	struct grenadier_enemy {
@@ -92,7 +94,7 @@ private:
 	};
 	engine::ref<engine::game_object> grenadier_object;
 	std::vector<grenadier_enemy> grenadier_enemies;
-	void update_grenadier(grenadier_enemy& grenadier_instance);
+	void update_grenadier(grenadier_enemy& grenadier_instance, const engine::timestep& time_step);
 
 	struct grenade {
 		glm::vec3 position{ 0.f };
@@ -104,7 +106,7 @@ private:
 	};
 	engine::ref<engine::game_object> grenade_object;
 	std::vector<grenade> grenades;
-	void update_grenade(grenade& grenade_instance);
+	void update_grenade(grenade& grenade_instance, const engine::timestep& time_step);
 
 
 	struct trapper_enemy {
@@ -118,7 +120,7 @@ private:
 	};
 	engine::ref<engine::game_object> trapper_object;
 	std::vector<trapper_enemy> trapper_enemies;
-	void update_trapper(trapper_enemy& trapper_instance);
+	void update_trapper(trapper_enemy& trapper_instance, const engine::timestep& time_step);
 
 	struct trap {
 		glm::vec3 position{ 0.f };
@@ -128,7 +130,7 @@ private:
 	};
 	engine::ref<engine::game_object> trap_object;
 	std::vector<trapper_enemy> traps;
-	void update_trap(trap& trap_instance);
+	void update_trap(trap& trap_instance, const engine::timestep& time_step);
 
 
 	struct player {
@@ -140,10 +142,11 @@ private:
 		glm::vec3 fire_vector{ 0.f };
 		float fireVel;
 		bool is_trapped = false;
+		bool can_jump = true;
 	};
 	engine::ref<engine::game_object> player_object;
 	player m_player;
-	void update_player();
+	void update_player(const engine::timestep& time_step);
 
 
 
@@ -161,4 +164,8 @@ private:
 
 	engine::orthographic_camera       m_2d_cam;
 	engine::perspective_camera        m_3d_cam;
+
+
+	glm::vec3 mainscene_layer::get_random_inside_unit_sphere();
+	
 };

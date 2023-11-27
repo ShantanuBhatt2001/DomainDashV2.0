@@ -121,7 +121,7 @@ namespace engine
         perspective_camera( 
             float width, float height,  
             float fov = 45.f,  
-            float near_z = 0.1f, float far_z = 200.f);
+            float near_z = 0.1f, float far_z = 500.f);
 
         void on_update(const timestep& timestep) override;
         void on_update(const timestep& timestep, glm::vec3 center, float radius);
