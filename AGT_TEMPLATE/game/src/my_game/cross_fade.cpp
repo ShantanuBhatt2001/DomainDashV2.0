@@ -29,14 +29,12 @@ void cross_fade::on_update(const engine::timestep& time_step)
 
 void cross_fade::on_render(engine::ref<engine::shader> shader)
 {
-	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", 1.0f);
+	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", m_transparency);
 	if (!s_active)
 		return;
-
 	glm::mat4 transform(1.0f);
 	transform = glm::translate(transform, glm::vec3(0.f, 0.f, 0.1f));
 	//setup  cross fade material. create it unlit so as to be unaffected by world lights
-	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", m_transparency);
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("has_texture", true);
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->
 		set_uniform("lighting_on", false);
@@ -45,20 +43,18 @@ void cross_fade::on_render(engine::ref<engine::shader> shader)
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->
 		set_uniform("lighting_on", true);
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("has_texture", false);
-	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", 1.0f);
+
 }
 
 void cross_fade::activate()
 {
 	s_active = true;
-	m_transparency = 1.f;
 	m_timer = 0.0f;
 }
 
 void cross_fade::deactivate()
 {
 	s_active = false;
-	m_transparency = 0.f;
 }
 
 engine::ref<cross_fade> cross_fade::create(const std::string& path, float max_time, float width, float height)

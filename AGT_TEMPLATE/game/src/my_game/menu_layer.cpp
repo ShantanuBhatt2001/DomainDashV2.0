@@ -12,7 +12,7 @@ m_2d_cam(-1.6f, 1.6f, -0.9f, 0.9f),
 m_3d_cam((float)engine::application::window().width(), (float)engine::application::window().height())
 {
 	//world setup
-	engine::application::window().hide_mouse_cursor();// cursor lock
+	//engine::application::window().hide_mouse_cursor();// cursor lock
 	auto mesh_shader = engine::renderer::shaders_library()->get("mesh");
 	auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 	m_cross_fade = cross_fade::create("assets/textures/Menu.bmp", 5.0f, 1.6f, 0.9f);
@@ -309,38 +309,38 @@ void menu_layer::on_render()
 
 
 	
-	for (int i = 0; i < prot_count; i++)
-	{
-		//conversion of r, theta, phi to x,y,z
-		float r = sphere_pos[i].x;
-		float theta = sphere_pos[i].y;
-		float phi = sphere_pos[i].z;
-		float x = 6 * cos(theta) * sin(phi);
-		float y = 6 * sin(theta) * sin(phi);
-		float z = 6 * cos(phi);
+	//for (int i = 0; i < prot_count; i++)
+	//{
+	//	//conversion of r, theta, phi to x,y,z
+	//	float r = sphere_pos[i].x;
+	//	float theta = sphere_pos[i].y;
+	//	float phi = sphere_pos[i].z;
+	//	float x = 6 * cos(theta) * sin(phi);
+	//	float y = 6 * sin(theta) * sin(phi);
+	//	float z = 6 * cos(phi);
 
-		glm::mat4 obj_transform(1.f);
-		obj_transform = glm::translate(obj_transform, glm::vec3(x,y,z));
-		obj_transform = glm::rotate(obj_transform, protection_sphere->rotation_amount(), protection_sphere->rotation_axis());
-		obj_transform = glm::scale(obj_transform, protection_sphere->scale());
-		engine::renderer::submit(mesh_shader, obj_transform, protection_sphere);
+	//	glm::mat4 obj_transform(1.f);
+	//	obj_transform = glm::translate(obj_transform, glm::vec3(x,y,z));
+	//	obj_transform = glm::rotate(obj_transform, protection_sphere->rotation_amount(), protection_sphere->rotation_axis());
+	//	obj_transform = glm::scale(obj_transform, protection_sphere->scale());
+	//	engine::renderer::submit(mesh_shader, obj_transform, protection_sphere);
 
-		//render of guns for protection sphere
-		gun_mat->submit(mesh_shader);
-		std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-			set_uniform("lighting_on", false);
-		gun->turn_towards(glm::vec3(x,y,z)-closest_center);
-		obj_transform = glm::mat4(1.f);
-		obj_transform = glm::translate(obj_transform, glm::vec3(x, y, z));
-		obj_transform = glm::rotate(obj_transform, gun->rotation_amount(), gun->rotation_axis());
-		obj_transform = glm::scale(obj_transform, gun->scale());
-		engine::renderer::submit(mesh_shader, obj_transform, gun);
-		std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-			set_uniform("lighting_on", true);
-		base_mat->submit(mesh_shader);
-	}
-	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-		set_uniform("lighting_on", true);
+	//	//render of guns for protection sphere
+	//	gun_mat->submit(mesh_shader);
+	//	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+	//		set_uniform("lighting_on", false);
+	//	gun->turn_towards(glm::vec3(x,y,z)-closest_center);
+	//	obj_transform = glm::mat4(1.f);
+	//	obj_transform = glm::translate(obj_transform, glm::vec3(x, y, z));
+	//	obj_transform = glm::rotate(obj_transform, gun->rotation_amount(), gun->rotation_axis());
+	//	obj_transform = glm::scale(obj_transform, gun->scale());
+	//	engine::renderer::submit(mesh_shader, obj_transform, gun);
+	//	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+	//		set_uniform("lighting_on", true);
+	//	base_mat->submit(mesh_shader);
+	//}
+	//std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+	//	set_uniform("lighting_on", true);
 
 
 
@@ -452,7 +452,7 @@ void menu_layer::on_event(engine::event& event)
 		if (e.key_code() == engine::key_codes::KEY_SPACE && isPlay())
 		{
 			std::cout << "PLAYGAME";
-			engine::application::instance().pop_layer(this);
+			engine::application::instance().pop_layer(this,main_game_layer);
 		}
 		if(e.key_code() == engine::key_codes::KEY_SPACE && isHelp())
 		{

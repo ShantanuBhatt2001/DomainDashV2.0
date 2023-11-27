@@ -87,12 +87,15 @@ void engine::application::push_layer(layer* layer)
     m_layers_stack.push_layer(layer); 
 }
 
-void engine::application::pop_layer(layer* layer)
+void engine::application::pop_layer(layer* first_layer,layer* second_layer)
 {
     for (auto i : m_layers_stack)
     {
-        if(i==layer)
-            layer->set_active(false);
+        if(i==first_layer)
+            first_layer->set_active(false);
+
+        if (i == second_layer)
+            second_layer->set_active(true);
     }
     engine::render_command::clear_color({ 0.2f, 0.3f, 0.3f, 1.0f });
     engine::render_command::clear();

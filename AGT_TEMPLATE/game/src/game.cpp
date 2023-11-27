@@ -1,6 +1,7 @@
 // --------- Entry Point ---------------
 #include "example_layer.h"
 #include "my_game/menu_layer.h"
+#include "game/Main_Game/main_scene.h"
 #include "engine/core/entry_point.h"
 #include "engine/events/key_event.h"
 
@@ -10,8 +11,11 @@ class sandbox_app : public engine::application
 public: 
     sandbox_app() 
     {
-        
-        push_layer(new menu_layer()); 
+        menu_layer* menuLayer = new menu_layer();
+        menuLayer->main_game_layer = new mainscene_layer();
+
+        push_layer(menuLayer);
+        push_layer(menuLayer->main_game_layer);
     } 
 
     ~sandbox_app() = default; 

@@ -30,7 +30,7 @@ namespace engine
         /// \brief Adds a overlay to the stack.
         void push_overlay(layer *overlay);
         void pop_overlay(layer* overlay);
-        void pop_layer(layer* layer);
+        void pop_layer(layer* first_layer, layer* second_layer);
         /// \brief Returns a reference to the application window.
         static window& window() { return *(s_instance->m_window); } 
 

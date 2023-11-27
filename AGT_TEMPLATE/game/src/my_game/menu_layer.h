@@ -85,4 +85,5 @@ public:
 	glm::vec3 player_accel{ 0 };
 	glm::vec3 player_velocity{ 0 };
 	glm::vec3 player_position{ 0 };
+	layer* main_game_layer;
 };
