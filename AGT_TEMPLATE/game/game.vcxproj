@@ -132,18 +132,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\example_layer.h" />
+    <ClInclude Include="src\game\Main_Game\cross_fade.h" />
+    <ClInclude Include="src\game\Main_Game\help_popup.h" />
     <ClInclude Include="src\game\Main_Game\main_scene.h" />
-    <ClInclude Include="src\my_game\help_popup.h" />
-    <ClInclude Include="src\my_game\menu_layer.h" />
-    <ClInclude Include="src\my_game\quad.h" />
+    <ClInclude Include="src\game\Main_Game\menu_layer.h" />
+    <ClInclude Include="src\game\Main_Game\quad.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\example_layer.cpp" />
     <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\game\Main_Game\cross_fade.cpp" />
+    <ClCompile Include="src\game\Main_Game\help_popup.cpp" />
     <ClCompile Include="src\game\Main_Game\main_scene.cpp" />
-    <ClCompile Include="src\my_game\help_popup.cpp" />
-    <ClCompile Include="src\my_game\menu_layer.cpp" />
-    <ClCompile Include="src\my_game\quad.cpp" />
+    <ClCompile Include="src\game\Main_Game\menu_layer.cpp" />
+    <ClCompile Include="src\game\Main_Game\quad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

@@ -1,6 +1,7 @@
 #pragma once
 #include <engine.h>
 #include "engine/utils/timer.h"
+#include "cross_fade.h"
 
 class mainscene_layer : public engine::layer
 {
@@ -94,7 +95,7 @@ private:
 	//follow enemy acceleration
 	engine::ref<engine::game_object> follow_object;
 	std::vector<follow_enemy> follow_enemies;
-	float follow_accel = 200.f;
+	float follow_accel = 70.f;
 
 	void update_follow( const engine::timestep& time_step);
 	// mortar enemy struct
@@ -120,7 +121,7 @@ private:
 		glm::vec3 velocity{ 0.f };
 		glm::vec3 accel{ 0.f };
 		float maxTime = 2.f;
-		float grenade_radius = 0.5f;
+		float grenade_radius = 3.f;
 		planet active_planet;
 	};
 	engine::ref<engine::game_object> grenade_object;
@@ -136,20 +137,22 @@ private:
 		float max_hitp = 10.f;
 		float current_hitp;
 		planet active_planet;
+		engine::timer trap_timer;
 	};
 	engine::ref<engine::game_object> trapper_object;
 	std::vector<trapper_enemy> trapper_enemies;
-	void update_trapper(trapper_enemy& trapper_instance, const engine::timestep& time_step);
+	void update_trapper( const engine::timestep& time_step);
 
 	struct trap {
 		glm::vec3 position{ 0.f };
 		float time_trap = 2.f;
 		float max_hitp = 10.f;
 		float trap_radius = 0.5f;
+		engine::timer trap_active_timer;
 	};
 	engine::ref<engine::game_object> trap_object;
-	std::vector<trapper_enemy> traps;
-	void update_trap(trap& trap_instance, const engine::timestep& time_step);
+	std::vector<trap> traps;
+	void update_trap( const engine::timestep& time_step);
 
 
 	struct player {
@@ -162,7 +165,12 @@ private:
 		float fireVel;
 		bool is_trapped = false;
 		bool can_jump = true;
+		float trap_time = 0.5f;
+		engine::timer trapped_timer;
 	};
+
+	engine::ref<cross_fade>							damage{};
+	engine::ref<cross_fade>							trapped{};
 	engine::ref<engine::game_object> player_object;
 	player m_player;
 	void update_player(const engine::timestep& time_step);
