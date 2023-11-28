@@ -9,7 +9,7 @@
     <ClCompile Include="src\my_game\quad.cpp">
       <Filter>MainMenu</Filter>
     </ClCompile>
-    <ClCompile Include="src\my_game\cross_fade.cpp">
+    <ClCompile Include="src\my_game\help_popup.cpp">
       <Filter>MainMenu</Filter>
     </ClCompile>
     <ClCompile Include="src\game\Main_Game\main_scene.cpp">
@@ -24,7 +24,7 @@
     <ClInclude Include="src\my_game\quad.h">
       <Filter>MainMenu</Filter>
     </ClInclude>
-    <ClInclude Include="src\my_game\cross_fade.h">
+    <ClInclude Include="src\my_game\help_popup.h">
       <Filter>MainMenu</Filter>
     </ClInclude>
     <ClInclude Include="src\game\Main_Game\main_scene.h">
@@ -32,11 +32,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="MainMenu">
-      <UniqueIdentifier>{404772ba-8504-41cf-af30-aab71be7a022}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Main_Game">
       <UniqueIdentifier>{9dab2714-ab84-40d3-9b3e-c21c300129d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainMenu">
+      <UniqueIdentifier>{404772ba-8504-41cf-af30-aab71be7a022}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

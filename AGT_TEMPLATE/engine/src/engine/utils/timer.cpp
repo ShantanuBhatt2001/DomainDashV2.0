@@ -25,7 +25,7 @@ double engine::timer::elapsed()
 
 	m_delta_time = currentFrame - m_last_frame;
 	//m_last_frame = currentFrame;
-	std::cout << "follow_timer" <<m_delta_time<< std::endl;
+	
 	return m_delta_time;
 }
 

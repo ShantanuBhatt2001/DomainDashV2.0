@@ -3,7 +3,7 @@
 #include<engine.h>
 #include<vector>
 #include<string>
-#include "cross_fade.h"
+#include "help_popup.h"
 
 class menu_layer : public engine::layer
 {
@@ -55,7 +55,7 @@ private:
 	engine:: ref<engine::material> gun_mat{};//mat for guns
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::text_manager>	m_text_manager{};//UI for input
-	engine::ref<cross_fade>							m_cross_fade{};
+	engine::ref<help_popup>							m_help_popup{};
 	// cameras
 	engine::perspective_camera m_3d_cam;
 	engine::orthographic_camera m_2d_cam;

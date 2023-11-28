@@ -15,7 +15,7 @@ m_3d_cam((float)engine::application::window().width(), (float)engine::applicatio
 	//engine::application::window().hide_mouse_cursor();// cursor lock
 	auto mesh_shader = engine::renderer::shaders_library()->get("mesh");
 	auto text_shader = engine::renderer::shaders_library()->get("text_2D");
-	m_cross_fade = cross_fade::create("assets/textures/Menu.bmp", 5.0f, 1.6f, 0.9f);
+	m_help_popup = help_popup::create("assets/textures/Menu.bmp", 5.0f, 1.6f, 0.9f);
 	
 	//light setup
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -282,7 +282,7 @@ void menu_layer::on_update(const engine::timestep& time_step)
 	
 	m_3d_cam.pos_update(closest_center + glm::normalize(player_position - closest_center)*40.f,closest_center);
 
-	m_cross_fade->on_update(time_step);
+	m_help_popup->on_update(time_step);
 }
 void menu_layer::on_render()
 {
@@ -428,7 +428,7 @@ void menu_layer::on_render()
 	
 	//render menu
 	engine::renderer::begin_scene(m_2d_cam, mesh_shader);
-	m_cross_fade->on_render(mesh_shader);
+	m_help_popup->on_render(mesh_shader);
 	engine::renderer::end_scene();
 	
 }
@@ -446,9 +446,9 @@ void menu_layer::on_event(engine::event& event)
 			engine::render_command::toggle_wireframe();
 			
 		}
-		if (e.key_code() == engine::key_codes::KEY_ENTER && m_cross_fade->is_active())
+		if (e.key_code() == engine::key_codes::KEY_ENTER && m_help_popup->is_active())
 		{
-			m_cross_fade->deactivate();
+			m_help_popup->deactivate();
 		}
 		if (e.key_code() == engine::key_codes::KEY_SPACE && isPlay())
 		{
@@ -457,7 +457,7 @@ void menu_layer::on_event(engine::event& event)
 		}
 		if(e.key_code() == engine::key_codes::KEY_SPACE && isHelp())
 		{
-			m_cross_fade->activate();
+			m_help_popup->activate();
 			std::cout << "Help";
 		}
 		if (e.key_code() == engine::key_codes::KEY_SPACE && isExit())

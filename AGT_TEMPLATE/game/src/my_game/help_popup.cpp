@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "cross_fade.h"
+#include "help_popup.h"
 #include "quad.h"
 
-cross_fade::cross_fade(const std::string& path, float max_time, float width, float height)
+help_popup::help_popup(const std::string& path, float max_time, float width, float height)
 {
 	m_max_time = max_time;
 	m_texture = engine::texture_2d::create(path, true);
@@ -13,10 +13,10 @@ cross_fade::cross_fade(const std::string& path, float max_time, float width, flo
 	s_active = false;
 }
 
-cross_fade::~cross_fade()
+help_popup::~help_popup()
 {}
 
-void cross_fade::on_update(const engine::timestep& time_step)
+void help_popup::on_update(const engine::timestep& time_step)
 {
 	if (!s_active)
 		return;
@@ -27,7 +27,7 @@ void cross_fade::on_update(const engine::timestep& time_step)
 	
 }
 
-void cross_fade::on_render(engine::ref<engine::shader> shader)
+void help_popup::on_render(engine::ref<engine::shader> shader)
 {
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", m_transparency);
 	if (!s_active)
@@ -46,18 +46,18 @@ void cross_fade::on_render(engine::ref<engine::shader> shader)
 
 }
 
-void cross_fade::activate()
+void help_popup::activate()
 {
 	s_active = true;
 	m_timer = 0.0f;
 }
 
-void cross_fade::deactivate()
+void help_popup::deactivate()
 {
 	s_active = false;
 }
 
-engine::ref<cross_fade> cross_fade::create(const std::string& path, float max_time, float width, float height)
+engine::ref<help_popup> help_popup::create(const std::string& path, float max_time, float width, float height)
 {
-	return std::make_shared<cross_fade>(path, max_time, width, height);
+	return std::make_shared<help_popup>(path, max_time, width, height);
 }

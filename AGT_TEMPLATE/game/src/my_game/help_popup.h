@@ -3,18 +3,18 @@
 
 class quad;
 
-class cross_fade
+class help_popup
 {
 public:
-	cross_fade(const std::string& path, float max_time, float width, float height);
-	~cross_fade();
+	help_popup(const std::string& path, float max_time, float width, float height);
+	~help_popup();
 
 	void on_update(const engine::timestep& time_step);
 	void on_render(engine::ref<engine::shader> shader);
 	void activate();
 	void deactivate();
 	bool is_active() { return s_active; }
-	static engine::ref<cross_fade> create(const std::string& path, float max_time, float width, float height);
+	static engine::ref<help_popup> create(const std::string& path, float max_time, float width, float height);
 
 private:
 	bool s_active;

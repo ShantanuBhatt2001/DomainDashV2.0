@@ -157,7 +157,7 @@ private:
 		glm::vec3 velocity{ 0.f };
 		glm::vec3 accel{ 0.f };
 		float max_hitp = 100.f;
-		
+		float current_hitp;
 		glm::vec3 fire_vector{ 0.f };
 		float fireVel;
 		bool is_trapped = false;

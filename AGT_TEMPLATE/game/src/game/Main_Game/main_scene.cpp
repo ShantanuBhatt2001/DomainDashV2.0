@@ -86,7 +86,7 @@ mainscene_layer::mainscene_layer() :
 	player_object = engine::game_object::create(player_props);
 
 	m_player.position= glm::normalize(m_3d_cam.position() - active_planet.position) * 6.f;
-
+	m_player.current_hitp = m_player.max_hitp;
 	// spawn ships initialisation
 
 	engine::ref <engine::model> ship_model = engine::model::create(ship_loc);
@@ -134,7 +134,7 @@ mainscene_layer::mainscene_layer() :
 	grenade_mat= engine::material::create(1.0f, glm::vec3(1.f, 0.f, 0.f),
 		glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 
-	engine::ref<engine::sphere> grenade_shape = engine::sphere::create(10, 20, 0.4f);
+	engine::ref<engine::sphere> grenade_shape = engine::sphere::create(10, 20, 0.3f);
 	engine::game_object_properties grenade_props;
 	grenade_props.meshes = { grenade_shape->mesh() };
 	grenade_props.bounding_shape = glm::vec3(0.1f);
@@ -226,7 +226,7 @@ void mainscene_layer::on_render()
 		glm::mat4 obj_transform(1.f);
 		obj_transform = glm::translate(obj_transform, follow_enemies[i].position);
 		obj_transform = glm::scale(obj_transform, follow_object->scale());
-		std::cout << follow_enemies[i].position << std::endl;
+		/*std::cout << follow_enemies[i].position << std::endl;*/
 		
 
 		engine::renderer::submit(mesh_shader, obj_transform, follow_object);
@@ -240,7 +240,7 @@ void mainscene_layer::on_render()
 		glm::mat4 obj_transform(1.f);
 		obj_transform = glm::translate(obj_transform, grenadier_enemies[i].position);
 		obj_transform = glm::scale(obj_transform, follow_object->scale());
-		std::cout << grenadier_enemies[i].position << std::endl;
+		/*std::cout << grenadier_enemies[i].position << std::endl;*/
 
 
 		engine::renderer::submit(mesh_shader, obj_transform, follow_object);
@@ -254,7 +254,7 @@ void mainscene_layer::on_render()
 		glm::mat4 obj_transform(1.f);
 		obj_transform = glm::translate(obj_transform, grenades[i].position);
 		obj_transform = glm::scale(obj_transform, grenade_object->scale());
-		std::cout << grenades[i].position << std::endl;
+		/*std::cout << grenades[i].position << std::endl;*/
 
 
 		engine::renderer::submit(mesh_shader, obj_transform, grenade_object);
@@ -383,6 +383,19 @@ void mainscene_layer::update_follow( const engine::timestep& time_step)
 			follow_instance.accel -= glm::dot(follow_instance.accel, (follow_instance.active_planet.position - follow_instance.position)) * glm::normalize(follow_instance.active_planet.position - follow_instance.position);
 			follow_instance.velocity -= 1.2f *glm::dot(follow_instance.velocity, glm::normalize(follow_instance.active_planet.position - follow_instance.position)) * glm::normalize(follow_instance.active_planet.position - follow_instance.position);
 		}
+
+		if (glm::length(follow_instance.position - m_player.position) <= 1.5f)
+		{
+			for (int i = 0; i < follow_enemies.size(); i++)
+			{
+				if (&follow_enemies[i] == &follow_instance)
+				{
+					follow_enemies.erase(follow_enemies.begin() + i);
+					m_player.current_hitp -= 10.f;
+					break;
+				}
+			}
+		}
 	}
 	
 
@@ -458,6 +471,8 @@ void mainscene_layer::update_grenade( const engine::timestep& time_step)
 			{
 				if (&grenades[i] == &grenade_instance)
 				{
+					if (glm::length(grenade_instance.position - m_player.position) <= grenade_instance.grenade_radius)
+						m_player.current_hitp -= 10.f;
 					grenades.erase(grenades.begin() + i);
 					break;
 				}
@@ -526,10 +541,13 @@ void mainscene_layer::update_player(const engine::timestep& time_step)
 
 	if (engine::input::key_pressed(engine::key_codes::KEY_SPACE) && m_player.can_jump)
 	{
-		std::cout << "called jump";
+		/*std::cout << "called jump";*/
 		m_player.velocity += m_3d_cam.front_vector() * -80.f;
 	}
 	m_3d_cam.pos_update(active_planet.position + glm::normalize(m_player.position - active_planet.position) * 50.f, active_planet.position);
+
+	if(m_player.current_hitp<=0.f)
+		engine::application::exit();
 }
 
 
