@@ -1,5 +1,6 @@
 #pragma once
 #include <engine.h>
+#include "engine/utils/timer.h"
 
 class mainscene_layer : public engine::layer
 {
@@ -12,6 +13,13 @@ public:
 	void on_event(engine::event& event) override;
 
 private:
+	
+	// bool for start
+	bool isStart=true;
+
+
+	//timer for score and difficulty
+	engine::timer score_timer;
 	//mats
 	engine::ref<engine::material> planet_mat;
 	engine::ref<engine::material> spawn_ship_mat;
@@ -63,6 +71,15 @@ private:
 	std::string ship_loc = "assets/models/static/ship.fbx";
 
 
+	//spawn times
+	float spawn_follow= 5.f;
+	float spawn_grenadier = 7.f;
+	float spawn_trapper = 10.f;
+
+	engine::timer follow_timer;
+	engine::timer grenadier_timer;
+	engine::timer trapper_timer;
+
 
 	//follow enemy struct
 	struct follow_enemy {
@@ -77,7 +94,7 @@ private:
 	//follow enemy acceleration
 	engine::ref<engine::game_object> follow_object;
 	std::vector<follow_enemy> follow_enemies;
-	float follow_accel = 60.f;
+	float follow_accel = 200.f;
 
 	void update_follow( const engine::timestep& time_step);
 	// mortar enemy struct
@@ -90,11 +107,13 @@ private:
 		int current_hitp;
 		float firing_dist=0.f;
 		float firing_vel=0.f;
+		float fire_time = 4.f;
 		planet active_planet;
+		engine::timer shoot_timer;
 	};
 	engine::ref<engine::game_object> grenadier_object;
 	std::vector<grenadier_enemy> grenadier_enemies;
-	void update_grenadier(grenadier_enemy& grenadier_instance, const engine::timestep& time_step);
+	void update_grenadier(const engine::timestep& time_step);
 
 	struct grenade {
 		glm::vec3 position{ 0.f };
@@ -106,7 +125,7 @@ private:
 	};
 	engine::ref<engine::game_object> grenade_object;
 	std::vector<grenade> grenades;
-	void update_grenade(grenade& grenade_instance, const engine::timestep& time_step);
+	void update_grenade(const engine::timestep& time_step);
 
 
 	struct trapper_enemy {
