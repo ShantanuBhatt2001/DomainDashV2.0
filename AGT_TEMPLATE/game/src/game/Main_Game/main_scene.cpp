@@ -40,7 +40,7 @@ mainscene_layer::mainscene_layer() :
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("transparency", 1.0f);
 
 //skybox initialisation
-	m_skybox = engine::skybox::create(100.f,
+	m_skybox = engine::skybox::create(200.f,
 		{ engine::texture_2d::create("assets/textures/skybox/front.png", true),
 		  engine::texture_2d::create("assets/textures/skybox/right.png", true),
 		  engine::texture_2d::create("assets/textures/skybox/back.png", true),
@@ -62,13 +62,6 @@ mainscene_layer::mainscene_layer() :
 	planet_gameObjects.push_back(engine::game_object::create(planet_props));
 	active_planet = world_planets[0];
 
- 
-	world_planets.push_back(planet{ glm::vec3{40.f},10.f });
-	planet_gameObjects.push_back(engine::game_object::create(planet_props));
-
-	world_planets.push_back(planet{ glm::vec3{-40.f},10.f });
-	planet_gameObjects.push_back(engine::game_object::create(planet_props));
-
 	planet_mat=engine::material::create(1.0f, glm::vec3(0.0f, 0.f, 0.f),
 		glm::vec3(0.0f, 0.f, 0.f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 
@@ -89,6 +82,9 @@ mainscene_layer::mainscene_layer() :
 
 	m_player.position= glm::normalize(m_3d_cam.position() - active_planet.position) * 6.f;
 	m_player.current_hitp = m_player.max_hitp;
+
+
+
 	// spawn ships initialisation
 
 	engine::ref <engine::model> ship_model = engine::model::create(ship_loc);
@@ -96,14 +92,14 @@ mainscene_layer::mainscene_layer() :
 	ship_props.meshes = ship_model->meshes();
 	ship_props.textures = ship_model->textures();
 	ship_props.position = { 0.f,0.f, 0.f };
-	ship_props.scale = glm::vec3(0.01f);
+	ship_props.scale = glm::vec3(0.005f);
 	spawn_object = engine::game_object::create(ship_props);
 	for (int i = 0; i < count; i++)
 	{
 		// boid setup
 
 		spawn_ship temp_boid;
-		temp_boid.position = get_random_inside_unit_sphere() * 6.f;
+		temp_boid.position = get_random_inside_unit_sphere() *20.f;
 		
 		glm::vec3 origin_vec = active_planet.position - temp_boid.position;
 		glm::vec3 up_vec = glm::cross(get_random_inside_unit_sphere(), origin_vec);
@@ -116,8 +112,8 @@ mainscene_layer::mainscene_layer() :
 
 
 	//follow enemies initialization
-	follow_mat= engine::material::create(1.0f, glm::vec3(0.0f, 0.f, 1.f),
-		glm::vec3(0.0f, 0.f, 1.f), glm::vec3(0.5f, 0.5f, 0.5f),1.f);
+	follow_mat= engine::material::create(1.0f, glm::vec3(1.0f, 0.64f, 0.f),
+		glm::vec3(1.0f, 0.64f, 1.f), glm::vec3(0.5f, 0.5f, 0.5f),1.f);
 
 	//gremadier initialization
 	grenadier_mat = engine::material::create(1.0f, glm::vec3(0.5f, 1.f, 0.5f),
@@ -146,6 +142,22 @@ mainscene_layer::mainscene_layer() :
 
 	trapper_mat = engine::material::create(1.0f, glm::vec3(1.f, 1.f, 0.f),
 		glm::vec3(1.f, 1.f, 0.f), glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
+
+	//gun initialization
+
+	engine::ref<engine::prism> cyl_shape = engine::prism::create(3, 0.5f, 0.1f);
+	engine::game_object_properties cyl_props;
+	cyl_props.meshes = { cyl_shape->mesh() };
+	cyl_props.scale = glm::vec3(1.5f);
+	gun_object = engine::game_object::create(cyl_props);
+
+	engine::ref<engine::prism> health_shape = engine::prism::create(3, 0.5, 0.1f);
+	engine::game_object_properties health_props;
+	health_props.meshes = { health_shape->mesh() };
+	health_props.scale = glm::vec3(2.f);
+	pickup_object = engine::game_object::create(health_props);
+
+	health_timer.start();
 }
 
 mainscene_layer::~mainscene_layer()
@@ -169,8 +181,22 @@ void mainscene_layer::on_update(const engine::timestep& time_step)
 	update_grenade(time_step);
 	update_trapper(time_step);
 	update_trap(time_step);
+	update_health(time_step);
 	damage->on_update(time_step);
 	trapped->on_update(time_step);
+
+
+
+	//spawn health pickups
+	if (health_timer.elapsed() >= spawn_health)
+	{
+		health_pickup temp;
+		temp.position = get_random_inside_unit_sphere() * (active_planet.radius + 0.25f);
+		temp.active_timer.start();
+		pickups.push_back(temp);
+		health_timer.reset();
+	}
+
 }
 void mainscene_layer::on_render()
 {
@@ -225,7 +251,8 @@ void mainscene_layer::on_render()
 		engine::renderer::submit(mesh_shader, obj_transform, spawn_object);
 	}
 
-
+	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+		set_uniform("lighting_on", false);
 	// render follow enenmies
 	follow_mat->submit(mesh_shader);
 	for (int i = 0; i < follow_enemies.size(); i++)
@@ -290,7 +317,41 @@ void mainscene_layer::on_render()
 
 		engine::renderer::submit(mesh_shader, obj_transform, grenade_object);
 	}
+	// gun render
 
+	player_mat->submit(mesh_shader);
+	for (int i = 0; i < follow_enemies.size(); i++)
+	{
+		gun_object->turn_towards(follow_enemies[i].velocity);
+		glm::mat4 gun_transform(1.f);
+		gun_transform = glm::translate(gun_transform, follow_enemies[i].position);
+		gun_transform = glm::rotate(gun_transform, gun_object->rotation_amount(), gun_object->rotation_axis());
+		gun_transform = glm::scale(gun_transform, gun_object->scale());
+		engine::renderer::submit(mesh_shader, gun_transform, gun_object);
+	}
+
+
+	for (int i = 0; i < pickups.size(); i++)
+	{
+		pickup_object->turn_towards(pickups[i].position - active_planet.position);
+		glm::mat4 pickup_transform(1.f);
+		pickup_transform = glm::translate(pickup_transform, pickups[i].position);
+		pickup_transform = glm::rotate(pickup_transform, pickup_object->rotation_amount(), pickup_object->rotation_axis());
+		pickup_transform = glm::scale(pickup_transform, pickup_object->scale());
+		engine::renderer::submit(mesh_shader, pickup_transform, pickup_object);
+	}
+	for (int i = 0; i < grenadier_enemies.size(); i++)
+	{
+		
+		gun_object->turn_towards(grenadier_enemies[i].shoot_vector);
+		glm::mat4 gun_transform(1.f);
+		gun_transform = glm::translate(gun_transform, grenadier_enemies[i].position);
+		gun_transform = glm::rotate(gun_transform, gun_object->rotation_amount(), gun_object->rotation_axis());
+		gun_transform = glm::scale(gun_transform, gun_object->scale());
+		engine::renderer::submit(mesh_shader, gun_transform, gun_object);
+	}
+	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
+		set_uniform("lighting_on", true);
 	// render menu
 	engine::renderer::end_scene();
 		engine::renderer::begin_scene(m_2d_cam, mesh_shader);
@@ -306,14 +367,14 @@ void mainscene_layer::on_render()
 
 void mainscene_layer::on_event(engine::event& event)
 {
-
+	
 }
 
 void mainscene_layer::update_boid( const engine::timestep& time_step)
 {
-	float separationRadius = 10.0f;
-	float alignmentRadius = 5.0f;
-	float cohesionRadius = 10.f;
+	float separationRadius = 8.0f;
+	float alignmentRadius = 10.0f;
+	float cohesionRadius = 20.f;
 	float maxSpeed = 50.0f;
 
 	for (spawn_ship& boid :spawn_ships) {
@@ -394,9 +455,10 @@ void mainscene_layer::update_boid( const engine::timestep& time_step)
 	if (trapper_timer.elapsed() >= spawn_trapper)
 	{
 		int random = rand() % count;
+		glm::vec3 random_vel = get_random_inside_unit_sphere() * 10.f;
 		trapper_enemy temp_enemy;
 		temp_enemy.position = spawn_ships[random].position;
-		temp_enemy.velocity = glm::normalize(spawn_ships[random].velocity-glm::dot(spawn_ships[random].velocity,(active_planet.position-spawn_ships[random].position)))*4.f;
+		temp_enemy.velocity = glm::normalize(random_vel-glm::dot(random_vel,(active_planet.position-spawn_ships[random].position)))*4.f;
 		temp_enemy.current_hitp = temp_enemy.max_hitp;
 		temp_enemy.active_planet = active_planet;
 		temp_enemy.trap_timer.start();
@@ -409,6 +471,7 @@ void mainscene_layer::update_follow( const engine::timestep& time_step)
 
 	for (follow_enemy& follow_instance : follow_enemies)
 	{
+		
 		follow_instance.accel = glm::vec3{ 0.f };
 		glm::vec3  player_vec = m_player.position - follow_instance.position;
 		glm::vec3 origin_vec = follow_instance.active_planet.position - follow_instance.position;
@@ -455,11 +518,27 @@ void mainscene_layer::update_follow( const engine::timestep& time_step)
 
 void mainscene_layer::update_grenadier( const engine::timestep& time_step)
 {
+	
 	for (grenadier_enemy& grenadier_instance :grenadier_enemies)
 	{
+		
+		if (glm::length(grenadier_instance.position - m_player.position) <= 1.f)
+		{
+			for (int i = 0; i < grenadier_enemies.size(); i++)
+			{
+				if (&grenadier_enemies[i] == &grenadier_instance)
+				{
+					grenadier_enemies.erase(grenadier_enemies.begin() + i);
+					
+					break;
+				}
+			}
+			continue;
+		}
 		grenadier_instance.accel = glm::vec3{ 0.f };
 		glm::vec3  player_vec = m_player.position - grenadier_instance.position;
 		glm::vec3 origin_vec = grenadier_instance.active_planet.position - grenadier_instance.position;
+		grenadier_instance.shoot_vector = -origin_vec * 3.f + glm::normalize(player_vec) * 30.f;
 		if (glm::length(player_vec) >= 8.f)
 		{
 			grenadier_instance.accel = (glm::normalize(player_vec) + glm::normalize(origin_vec)) * (follow_accel + rand() % 50);
@@ -547,18 +626,20 @@ void mainscene_layer::update_trapper( const engine::timestep& time_step)
 {
 	for (trapper_enemy & trapper_instance: trapper_enemies)
 	{
+		
 		glm::vec3 origin_vec = trapper_instance.active_planet.position - trapper_instance.position;
 		
-		trapper_instance.position += trapper_instance.velocity * (float)time_step;
-		trapper_instance.velocity += trapper_instance.accel * (float)time_step;
 		trapper_instance.accel = origin_vec * 10.f;
 		trapper_instance.accel += -(trapper_instance.velocity - glm::dot(trapper_instance.velocity, glm::normalize(trapper_instance.active_planet.position - trapper_instance.position)) * glm::normalize(trapper_instance.active_planet.position - trapper_instance.position)) * 5.f;
 		trapper_instance.accel += glm::normalize(trapper_instance.velocity) * 40.f;
-		if (glm::length(trapper_instance.position - trapper_instance.active_planet.position) <= 10.5f)
+		if (glm::length(trapper_instance.position - trapper_instance.active_planet.position) < 10.5f)
 		{
-			trapper_instance.accel -= glm::dot(trapper_instance.accel, glm::normalize(trapper_instance.active_planet.position - trapper_instance.position)) * glm::normalize(trapper_instance.active_planet.position - trapper_instance.position);
 			trapper_instance.velocity -= 1.2f * glm::dot(trapper_instance.velocity, glm::normalize(trapper_instance.active_planet.position - trapper_instance.position)) * glm::normalize(trapper_instance.active_planet.position - trapper_instance.position);
+			trapper_instance.accel -= glm::dot(trapper_instance.accel, glm::normalize(trapper_instance.active_planet.position - trapper_instance.position)) * glm::normalize(trapper_instance.active_planet.position - trapper_instance.position);
+			trapper_instance.position = trapper_instance.active_planet.position - (10.5f * glm::normalize(origin_vec));
 		}
+		trapper_instance.position += trapper_instance.velocity * (float)time_step;
+		trapper_instance.velocity += trapper_instance.accel * (float)time_step;
 
 		if (trapper_instance.trap_timer.elapsed() >= trapper_instance.trap_place_time)
 		{
@@ -622,19 +703,31 @@ void mainscene_layer::update_player(const engine::timestep& time_step)
 	//player acceleration for movement
 	// player update
 	if (engine::input::key_pressed(engine::key_codes::KEY_A)) // left
-		m_player.accel -= m_3d_cam.right_vector();
+		input_accel -= m_3d_cam.right_vector();
 	if (engine::input::key_pressed(engine::key_codes::KEY_D)) // right
-		m_player.accel += m_3d_cam.right_vector();
+		input_accel += m_3d_cam.right_vector();
 	if (engine::input::key_pressed(engine::key_codes::KEY_W)) // Up
-		m_player.accel += m_3d_cam.up_vector();
+		input_accel += m_3d_cam.up_vector();
 	if (engine::input::key_pressed(engine::key_codes::KEY_S)) // Down
-		m_player.accel -= m_3d_cam.up_vector();
-	if (glm::length(m_player.accel) != 0.f)
+		input_accel -= m_3d_cam.up_vector();
+	if (glm::length(input_accel) != 0.f)
 	{
 		
-		m_player.accel = glm::normalize(m_player.accel) * 8.f * glm::length(active_planet.position - m_player.position);
+		m_player.accel = glm::normalize(input_accel) * 8.f * glm::length(active_planet.position - m_player.position);
+		
 	}
 
+	if (m_player.dash_timer.elapsed() >= m_player.time_dash)
+	{
+		m_player.can_dash = true;
+	}
+	if (engine::input::key_pressed(engine::key_codes::KEY_SPACE) && m_player.can_dash)
+	{
+		/*std::cout << "called jump";*/
+		m_player.velocity += glm::normalize(m_player.accel)*30.f;
+		m_player.can_dash = false;
+		m_player.dash_timer.start();
+	}
 	//player acceleration for gravity
 	m_player.accel += glm::normalize(active_planet.position - m_player.position) * 20.f * glm::length(active_planet.position - m_player.position);
 
@@ -652,24 +745,54 @@ void mainscene_layer::update_player(const engine::timestep& time_step)
 	//collision detection between player and planet
 	if (glm::length(m_player.position - active_planet.position) <= active_planet.radius)
 	{
-		m_player.can_jump = true;
+		
 		m_player.accel -= glm::dot(m_player.accel, (active_planet.position - m_player.position)) * glm::normalize(active_planet.position - m_player.position);
-		m_player.velocity -=1.5f* glm::dot(m_player.velocity, glm::normalize(active_planet.position - m_player.position)) * glm::normalize(active_planet.position- m_player.position);
+		m_player.velocity -=1.0f* glm::dot(m_player.velocity, glm::normalize(active_planet.position - m_player.position)) * glm::normalize(active_planet.position- m_player.position);
+		m_player.position = active_planet.radius * glm::normalize(m_player.position - active_planet.position);
 	}
-	else
-		m_player.can_jump= false;
 
-	if (engine::input::key_pressed(engine::key_codes::KEY_SPACE) && m_player.can_jump)
-	{
-		/*std::cout << "called jump";*/
-		m_player.velocity += m_3d_cam.front_vector() * -80.f;
-	}
-	m_3d_cam.pos_update(active_planet.position + glm::normalize(m_player.position - active_planet.position) * 50.f, active_planet.position);
+	
+	m_3d_cam.pos_update(active_planet.position + glm::normalize(m_player.position - active_planet.position) * 70.f, m_player.position);
 
 	if(m_player.current_hitp<=0.f)
 		engine::application::exit();
 }
 
+
+void mainscene_layer::update_health(const engine::timestep& time_step)
+{
+	for (health_pickup& health_instance : pickups)
+	{
+		if (health_instance.active_timer.elapsed() >= health_instance.active_time)
+		{
+			for (int i = 0; i < pickups.size(); i++)
+			{
+				if (&pickups[i] == &health_instance)
+				{
+					pickups.erase(pickups.begin() + i);
+
+					break;
+				}
+			}
+		}
+
+		if (glm::length(health_instance.position - m_player.position) < 1.f)
+		{
+			for (int i = 0; i < pickups.size(); i++)
+			{
+				if (&pickups[i] == &health_instance)
+				{
+					pickups.erase(pickups.begin() + i);
+
+					break;
+				}
+			}
+			m_player.current_hitp += 10.f;
+			m_player.current_hitp = std::min(m_player.current_hitp, m_player.max_hitp);
+			
+		}
+	}
+}
 
 
 //utility functions

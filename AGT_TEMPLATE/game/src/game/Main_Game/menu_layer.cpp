@@ -280,7 +280,7 @@ void menu_layer::on_update(const engine::timestep& time_step)
 	}
 	player->set_position(player_position);
 	
-	m_3d_cam.pos_update(closest_center + glm::normalize(player_position - closest_center)*40.f,closest_center);
+	m_3d_cam.pos_update(closest_center + glm::normalize(player_position - closest_center)*40.f,player_position);
 
 	m_help_popup->on_update(time_step);
 }
@@ -450,17 +450,17 @@ void menu_layer::on_event(engine::event& event)
 		{
 			m_help_popup->deactivate();
 		}
-		if (e.key_code() == engine::key_codes::KEY_SPACE && isPlay())
+		if (e.key_code() == engine::key_codes::KEY_ENTER && isPlay())
 		{
 			std::cout << "PLAYGAME";
 			engine::application::instance().pop_layer(this,main_game_layer);
 		}
-		if(e.key_code() == engine::key_codes::KEY_SPACE && isHelp())
+		if(e.key_code() == engine::key_codes::KEY_ENTER && isHelp())
 		{
 			m_help_popup->activate();
 			std::cout << "Help";
 		}
-		if (e.key_code() == engine::key_codes::KEY_SPACE && isExit())
+		if (e.key_code() == engine::key_codes::KEY_ENTER && isExit())
 		{
 			std::cout << "Exit";
 			engine::application::exit();

@@ -17,8 +17,8 @@ namespace engine
         bool        m_vsync;
 
         window_props(std::string const &title = "engine",
-                     uint32_t width = 1280,
-                     uint32_t height = 720,
+                     uint32_t width = 1920,
+                     uint32_t height = 1080,
 					 uint32_t pos_x = 0,
 					 uint32_t pos_y = 0)
             : m_title(title), m_width(width), m_height(height), m_pos_x(pos_x), m_pos_y(pos_y), m_fullscreen(false), m_vsync(false)

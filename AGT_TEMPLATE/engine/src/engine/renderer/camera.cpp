@@ -104,7 +104,7 @@ void engine::perspective_camera::on_update(const timestep& timestep, glm::vec3 c
 }
 void engine::perspective_camera::pos_update(glm::vec3 pos, glm::vec3 center)
 {
-    m_position = pos;
+    m_position =m_position+ (pos-m_position)*1.0f;
     auto look_dir = center - pos;
     update_camera_vectors(look_dir);
 }

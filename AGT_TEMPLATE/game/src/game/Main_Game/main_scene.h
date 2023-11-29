@@ -30,6 +30,10 @@ private:
 	engine::ref<engine::material> trapper_mat;
 	engine::ref<engine::material> trap_mat;
 	engine::ref<engine::material> player_mat;
+
+	//miscellaneous
+
+	engine::ref<engine::game_object> gun_object;
 	//skybox
 	engine::ref<engine::skybox>			m_skybox{};
 
@@ -67,7 +71,7 @@ private:
 	engine::ref<engine::game_object> spawn_object;
 	std::vector<spawn_ship> spawn_ships;
 	//count of boid enemies
-	int count = 200;
+	int count = 250;
 	void update_boid( const engine::timestep& time_step);
 	std::string ship_loc = "assets/models/static/ship.fbx";
 
@@ -111,6 +115,7 @@ private:
 		float fire_time = 4.f;
 		planet active_planet;
 		engine::timer shoot_timer;
+		glm::vec3 shoot_vector;
 	};
 	engine::ref<engine::game_object> grenadier_object;
 	std::vector<grenadier_enemy> grenadier_enemies;
@@ -121,7 +126,7 @@ private:
 		glm::vec3 velocity{ 0.f };
 		glm::vec3 accel{ 0.f };
 		float maxTime = 2.f;
-		float grenade_radius = 3.f;
+		float grenade_radius = 2.f;
 		planet active_planet;
 	};
 	engine::ref<engine::game_object> grenade_object;
@@ -145,7 +150,7 @@ private:
 
 	struct trap {
 		glm::vec3 position{ 0.f };
-		float time_trap = 2.f;
+		float time_trap = 5.f;
 		float max_hitp = 10.f;
 		float trap_radius = 0.5f;
 		engine::timer trap_active_timer;
@@ -164,10 +169,30 @@ private:
 		glm::vec3 fire_vector{ 0.f };
 		float fireVel;
 		bool is_trapped = false;
-		bool can_jump = true;
+		bool can_dash = true;
 		float trap_time = 0.5f;
 		engine::timer trapped_timer;
+		engine::timer dash_timer;
+		float time_dash = 2.f;
 	};
+
+	//health pickup
+
+	struct health_pickup
+	{
+		float amount;
+		float active_time=7.f;
+		engine::timer active_timer;
+		glm::vec3 position;
+		
+	};
+
+	engine::timer health_timer;
+	float spawn_health=10.f;
+	engine::ref < engine::game_object> pickup_object;
+	std::vector<health_pickup> pickups;
+	void update_health(const engine::timestep& time_step);
+
 
 	engine::ref<cross_fade>							damage{};
 	engine::ref<cross_fade>							trapped{};
