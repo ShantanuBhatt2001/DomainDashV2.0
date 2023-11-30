@@ -156,6 +156,7 @@ private:
 		engine::timer trap_active_timer;
 	};
 	engine::ref<engine::game_object> trap_object;
+	engine::ref<engine::game_object> trap_trigger;
 	std::vector<trap> traps;
 	void update_trap( const engine::timestep& time_step);
 

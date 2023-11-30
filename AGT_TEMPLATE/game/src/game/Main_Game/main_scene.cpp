@@ -26,7 +26,7 @@ mainscene_layer::mainscene_layer() :
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
 		set_uniform("gNumPointLights",0 );
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
-	m_directionalLight.AmbientIntensity = 0.25f;
+	m_directionalLight.AmbientIntensity =0.65f;
 	m_directionalLight.DiffuseIntensity = 0.6f;
 	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
 
@@ -112,8 +112,8 @@ mainscene_layer::mainscene_layer() :
 
 
 	//follow enemies initialization
-	follow_mat= engine::material::create(1.0f, glm::vec3(1.0f, 0.64f, 0.f),
-		glm::vec3(1.0f, 0.64f, 1.f), glm::vec3(0.5f, 0.5f, 0.5f),1.f);
+	follow_mat= engine::material::create(1.0f, glm::vec3(1.0f, 0.0f, 0.f),
+		glm::vec3(1.0f, 0.0f, 1.f), glm::vec3(0.5f, 0.5f, 0.5f),1.f);
 
 	//gremadier initialization
 	grenadier_mat = engine::material::create(1.0f, glm::vec3(0.5f, 1.f, 0.5f),
@@ -142,6 +142,21 @@ mainscene_layer::mainscene_layer() :
 
 	trapper_mat = engine::material::create(1.0f, glm::vec3(1.f, 1.f, 0.f),
 		glm::vec3(1.f, 1.f, 0.f), glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
+	//trap initialization
+	engine::ref<engine::cylinder> trap_shape = engine::cylinder::create(15, 0.5, 1.f);
+	engine::game_object_properties trap_props;
+	trap_props.meshes = { trap_shape->mesh() };
+	trap_props.scale = glm::vec3(0.5f);
+	trap_props.bounding_shape = glm::vec3(0.1f);
+	trap_object = engine::game_object::create(trap_props);
+
+
+	engine::ref<engine::cylinder> trigger_model = engine::cylinder::create(6, 0.3f, 0.6f);
+	engine::game_object_properties trigger_props;
+	trigger_props.meshes = { trigger_model->mesh() };
+	trigger_props.scale = glm::vec3(0.5f);
+	trigger_props.bounding_shape = glm::vec3(0.1f);
+	trap_trigger= engine::game_object::create(trigger_props);
 
 	//gun initialization
 
@@ -151,10 +166,11 @@ mainscene_layer::mainscene_layer() :
 	cyl_props.scale = glm::vec3(1.5f);
 	gun_object = engine::game_object::create(cyl_props);
 
-	engine::ref<engine::prism> health_shape = engine::prism::create(3, 0.5, 0.1f);
+	
+	engine::ref<engine::pointedcyl> health_shape = engine::pointedcyl::create(6, 0.2f, 0.07f);
 	engine::game_object_properties health_props;
 	health_props.meshes = { health_shape->mesh() };
-	health_props.scale = glm::vec3(2.f);
+	health_props.scale = glm::vec3(4.f);
 	pickup_object = engine::game_object::create(health_props);
 
 	health_timer.start();
@@ -251,8 +267,7 @@ void mainscene_layer::on_render()
 		engine::renderer::submit(mesh_shader, obj_transform, spawn_object);
 	}
 
-	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-		set_uniform("lighting_on", false);
+	
 	// render follow enenmies
 	follow_mat->submit(mesh_shader);
 	for (int i = 0; i < follow_enemies.size(); i++)
@@ -308,14 +323,28 @@ void mainscene_layer::on_render()
 	trapper_mat->submit(mesh_shader);
 	for (int i = 0; i < traps.size(); i++)
 	{
-
+		trap_object->turn_towards(traps[i].position - active_planet.position);
 		glm::mat4 obj_transform(1.f);
 		obj_transform = glm::translate(obj_transform, traps[i].position);
-		obj_transform = glm::scale(obj_transform, grenade_object->scale());
+		obj_transform = glm::rotate(obj_transform, trap_object->rotation_amount(), trap_object->rotation_axis());
+		obj_transform = glm::scale(obj_transform, trap_object->scale());
 		/*std::cout << grenades[i].position << std::endl;*/
 
 
-		engine::renderer::submit(mesh_shader, obj_transform, grenade_object);
+		engine::renderer::submit(mesh_shader, obj_transform, trap_object);
+	}
+	follow_mat->submit(mesh_shader);
+	for (int i = 0; i < traps.size(); i++)
+	{
+		trap_trigger->turn_towards(traps[i].position - active_planet.position);
+		glm::mat4 obj_transform(1.f);
+		obj_transform = glm::translate(obj_transform, traps[i].position-glm::normalize(active_planet.position-traps[i].position)*0.25f);
+		obj_transform = glm::rotate(obj_transform, trap_trigger->rotation_amount(), trap_trigger->rotation_axis());
+		obj_transform = glm::scale(obj_transform, trap_trigger->scale());
+		/*std::cout << grenades[i].position << std::endl;*/
+
+
+		engine::renderer::submit(mesh_shader, obj_transform, trap_trigger);
 	}
 	// gun render
 
@@ -350,8 +379,7 @@ void mainscene_layer::on_render()
 		gun_transform = glm::scale(gun_transform, gun_object->scale());
 		engine::renderer::submit(mesh_shader, gun_transform, gun_object);
 	}
-	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-		set_uniform("lighting_on", true);
+	
 	// render menu
 	engine::renderer::end_scene();
 		engine::renderer::begin_scene(m_2d_cam, mesh_shader);
@@ -644,7 +672,7 @@ void mainscene_layer::update_trapper( const engine::timestep& time_step)
 		if (trapper_instance.trap_timer.elapsed() >= trapper_instance.trap_place_time)
 		{
 			trap temp_trap;
-			temp_trap.position = trapper_instance.position;
+			temp_trap.position = trapper_instance.position+(glm::normalize(origin_vec)*0.5f);
 			temp_trap.trap_active_timer.start();
 			traps.push_back(temp_trap);
 			trapper_instance.trap_timer.reset();
@@ -721,7 +749,7 @@ void mainscene_layer::update_player(const engine::timestep& time_step)
 	{
 		m_player.can_dash = true;
 	}
-	if (engine::input::key_pressed(engine::key_codes::KEY_SPACE) && m_player.can_dash)
+	if (engine::input::key_pressed(engine::key_codes::KEY_SPACE) && m_player.can_dash && m_player.accel!= glm::vec3{ 0 })
 	{
 		/*std::cout << "called jump";*/
 		m_player.velocity += glm::normalize(m_player.accel)*30.f;

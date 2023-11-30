@@ -545,6 +545,8 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClInclude Include="src\engine\entities\game_object.h" />
     <ClInclude Include="src\engine\entities\grid.h" />
     <ClInclude Include="src\engine\entities\shapes\cuboid.h" />
+    <ClInclude Include="src\engine\entities\shapes\cylinder.h" />
+    <ClInclude Include="src\engine\entities\shapes\pointedcyl.h" />
     <ClInclude Include="src\engine\entities\shapes\prism.h" />
     <ClInclude Include="src\engine\entities\shapes\heightmap.h" />
     <ClInclude Include="src\engine\entities\shapes\sphere.h" />
@@ -604,6 +606,8 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClCompile Include="src\engine\entities\game_object.cpp" />
     <ClCompile Include="src\engine\entities\grid.cpp" />
     <ClCompile Include="src\engine\entities\shapes\cuboid.cpp" />
+    <ClCompile Include="src\engine\entities\shapes\cylinder.cpp" />
+    <ClCompile Include="src\engine\entities\shapes\pointedcyl.cpp" />
     <ClCompile Include="src\engine\entities\shapes\prism.cpp" />
     <ClCompile Include="src\engine\entities\shapes\heightmap.cpp" />
     <ClCompile Include="src\engine\entities\shapes\sphere.cpp" />

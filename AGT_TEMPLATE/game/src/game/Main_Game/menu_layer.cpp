@@ -19,7 +19,7 @@ m_3d_cam((float)engine::application::window().width(), (float)engine::applicatio
 	
 	//light setup
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
-	m_directionalLight.AmbientIntensity = 0.25f;
+	m_directionalLight.AmbientIntensity = 1.25f;
 	m_directionalLight.DiffuseIntensity = 1.6f;
 	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
 
@@ -31,14 +31,7 @@ m_3d_cam((float)engine::application::window().width(), (float)engine::applicatio
 	 m_directionalLight.submit(mesh_shader);
 	
 
-	//point light setup
-	m_pointLight.Color = glm::vec3(1.0f, 1.f, 1.f);
-	m_pointLight.AmbientIntensity = 0.3f;
-	m_pointLight.DiffuseIntensity = 3.6f;
-	m_pointLight.Position = closest_center;
-	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->
-		set_uniform("gNumPointLights", (int)num_point_lights);
-	m_pointLight.submit(mesh_shader, 0);
+
 	
 	//skybox setup
 	std::dynamic_pointer_cast<engine::gl_shader>(text_shader)->bind();

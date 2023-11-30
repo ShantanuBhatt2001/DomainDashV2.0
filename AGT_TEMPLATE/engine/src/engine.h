@@ -33,6 +33,8 @@
 #include "engine/entities/shapes/sphere.h"
 #include "engine/entities/shapes/tetrahedron.h"
 #include "engine/entities/shapes/prism.h"
+#include "engine/entities/shapes/cylinder.h"
+#include "engine/entities/shapes/pointedcyl.h"
 #include "engine/entities/terrain.h"
 #include "engine/entities/skybox.h"
 
