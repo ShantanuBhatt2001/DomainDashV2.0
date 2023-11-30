@@ -13,7 +13,7 @@ public:
 
 private:
 	void check_bounce();
-
+	std::vector<glm::vec3> ball_pos;
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::game_object>	m_terrain{};
 	engine::ref<engine::game_object>	m_cow{};

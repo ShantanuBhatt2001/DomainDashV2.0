@@ -5,17 +5,19 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "engine/events/key_event.h"
 #include "engine/utils/track.h"
-
+#include "grid.h"
 example_layer::example_layer() 
     :m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f), 
     m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
 
 
 {
+	
     // Hide the mouse and lock it inside the window
     //engine::input::anchor_mouse(true);
     engine::application::window().hide_mouse_cursor();
-
+	grid tempgrid(10.f, 10.f, glm::vec2(1.f));
+	ball_pos=tempgrid.create_grid();
 	// Initialise audio and play background music
 	m_audio_manager = engine::audio_manager::instance();
 	m_audio_manager->init();
@@ -113,18 +115,12 @@ example_layer::example_layer()
 	tree_props.scale = glm::vec3(tree_scale);
 	m_tree = engine::game_object::create(tree_props);
 
-	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, 0.5f);
+	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, 0.05f);
 	engine::game_object_properties sphere_props;
-	sphere_props.position = { 0.f, 5.f, -5.f };
-	sphere_props.meshes = { sphere_shape->mesh() };
-	sphere_props.type = 1;
-	sphere_props.bounding_shape = glm::vec3(0.5f);
-	sphere_props.restitution = 0.92f;
-	sphere_props.mass = 0.000001f;
+	sphere_props.meshes={sphere_shape->mesh()};
 	m_ball = engine::game_object::create(sphere_props);
-
 	m_game_objects.push_back(m_terrain);
-	m_game_objects.push_back(m_ball);
+
 	//m_game_objects.push_back(m_cow);
 	//m_game_objects.push_back(m_tree);
 	//m_game_objects.push_back(m_pickup);
@@ -147,7 +143,7 @@ void example_layer::on_update(const engine::timestep& time_step)
 
 	m_audio_manager->update_with_camera(m_3d_camera);
 
-	check_bounce();
+	//check_bounce();
 } 
 
 void example_layer::on_render() 
@@ -184,9 +180,17 @@ void example_layer::on_render()
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(mesh_shader, cow_transform, m_cow);
-
 	m_material->submit(mesh_shader);
-	engine::renderer::submit(mesh_shader, m_ball);
+	for (int i=0;i<ball_pos.size();i++)
+	{
+		glm::mat4 ball(1.0f);
+		ball = glm::translate(ball, ball_pos[i]);
+		
+		engine::renderer::submit(mesh_shader, ball, m_ball);
+		
+	}
+	
+	
 
 	m_mannequin_material->submit(mesh_shader);
 	engine::renderer::submit(mesh_shader, m_mannequin);

@@ -17,7 +17,7 @@ engine::heightmap::heightmap(std::string sTerrainFilename, std::string sTextureF
 		m_terrain_size_z = terrainSizeZ;
 
 		// Allocate memory and initialize to store the image
-		m_heightMap = new float[(size_t)m_width * m_height];
+		m_heightMap = new float[(int)m_width * m_height];
 		if (m_heightMap != NULL)
 		{
 			// Clear the heightmap
