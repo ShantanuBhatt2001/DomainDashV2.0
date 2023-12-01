@@ -15,7 +15,7 @@ m_3d_cam((float)engine::application::window().width(), (float)engine::applicatio
 	//engine::application::window().hide_mouse_cursor();// cursor lock
 	auto mesh_shader = engine::renderer::shaders_library()->get("mesh");
 	auto text_shader = engine::renderer::shaders_library()->get("text_2D");
-	m_help_popup = help_popup::create("assets/textures/Menu.bmp", 5.0f, 1.6f, 0.9f);
+	m_help_popup = help_popup::create("assets/textures/Menu.png", 5.0f, 1.6f, 0.9f);
 	
 	//light setup
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -443,17 +443,17 @@ void menu_layer::on_event(engine::event& event)
 		{
 			m_help_popup->deactivate();
 		}
-		if (e.key_code() == engine::key_codes::KEY_ENTER && isPlay())
+		if (e.key_code() == engine::key_codes::KEY_SPACE && isPlay())
 		{
 			std::cout << "PLAYGAME";
 			engine::application::instance().pop_layer(this,main_game_layer);
 		}
-		if(e.key_code() == engine::key_codes::KEY_ENTER && isHelp())
+		if(e.key_code() == engine::key_codes::KEY_SPACE && isHelp())
 		{
 			m_help_popup->activate();
 			std::cout << "Help";
 		}
-		if (e.key_code() == engine::key_codes::KEY_ENTER && isExit())
+		if (e.key_code() == engine::key_codes::KEY_SPACE && isExit())
 		{
 			std::cout << "Exit";
 			engine::application::exit();

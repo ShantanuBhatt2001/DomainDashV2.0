@@ -15,8 +15,12 @@ mainscene_layer::mainscene_layer() :
 	this->set_active(false);
 	m_audio_manager = engine::audio_manager::instance();
 	m_audio_manager->init();
-	m_audio_manager->load_sound("assets/audio/bounce.wav", engine::sound_type::spatialised, "bounce"); // Royalty free sound from freesound.org
-	m_audio_manager->load_sound("assets/audio/DST-impuretechnology.mp3", engine::sound_type::track, "music");  // Royalty free music from http://www.nosoapradio.us/
+	m_audio_manager->load_sound("assets/audio/Freesound-GrenaderLauncher.wav", engine::sound_type::spatialised, "launch_grenade"); // Royalty free sound from freesound.org
+	m_audio_manager->load_sound("assets/audio/Freesound-Health.wav", engine::sound_type::spatialised, "health"); // Royalty free sound from freesound.org
+	m_audio_manager->load_sound("assets/audio/Freesound-trap.wav", engine::sound_type::spatialised, "trap"); // Royalty free sound from freesound.org
+	m_audio_manager->load_sound("assets/audio/freesound-damage.wav", engine::sound_type::spatialised, "damage"); // Royalty free sound from freesound.org
+	m_audio_manager->load_sound("assets/audio/Freesound-grenadeExplosion.wav", engine::sound_type::spatialised, "grenade_explosion"); // Royalty free sound from freesound.org
+	m_audio_manager->load_sound("assets/audio/Freesound-bgmusic.wav", engine::sound_type::track, "music");  // Royalty free music from http://www.nosoapradio.us/
 	m_audio_manager->play("music");
 
 
@@ -532,6 +536,7 @@ void mainscene_layer::update_follow( const engine::timestep& time_step)
 			{
 				if (&follow_enemies[i] == &follow_instance)
 				{
+					m_audio_manager->play_spatialised_sound("damage", m_3d_cam.position(), m_3d_cam.position());
 					follow_enemies.erase(follow_enemies.begin() + i);
 					m_player.current_hitp -= 10.f;
 					damage->activate();
@@ -586,6 +591,7 @@ void mainscene_layer::update_grenadier( const engine::timestep& time_step)
 			temp.velocity = (-origin_vec * 3.f + glm::normalize(player_vec) * 30.f);
 			temp.active_planet = grenadier_instance.active_planet;
 			grenades.push_back(temp);
+			m_audio_manager->play_spatialised_sound("launch_grenade", m_3d_cam.position(), grenadier_instance.position);
 			grenadier_instance.shoot_timer.reset();
 
 		}
@@ -630,14 +636,17 @@ void mainscene_layer::update_grenade( const engine::timestep& time_step)
 		{
 			for (int i = 0; i < grenades.size(); i++)
 			{
+				m_audio_manager->play_spatialised_sound("grenade_explosion", m_3d_cam.position(), grenade_instance.position);
 				if (&grenades[i] == &grenade_instance)
 				{
+					
 					if (glm::length(grenade_instance.position - m_player.position) <= grenade_instance.grenade_radius)
 					{
+						m_audio_manager->play_spatialised_sound("damage", m_3d_cam.position(), m_3d_cam.position());
 						m_player.current_hitp -= 10.f;
 						damage->activate();
 					}
-						
+					
 					grenades.erase(grenades.begin() + i);
 					break;
 				}
@@ -693,6 +702,7 @@ void mainscene_layer::update_trap( const engine::timestep& time_step)
 			{
 				if (&traps[i] == &trap_instance)
 				{
+					
 					traps.erase(traps.begin() + i);
 					
 					break;
@@ -701,6 +711,7 @@ void mainscene_layer::update_trap( const engine::timestep& time_step)
 		}
 		if (glm::length(trap_instance.position - m_player.position) <= 1.f)
 		{
+			m_audio_manager->play_spatialised_sound("trap", m_3d_cam.position(), trap_instance.position);
 			m_player.is_trapped = true;
 			m_player.trapped_timer.start();
 			trapped->activate();
@@ -815,6 +826,7 @@ void mainscene_layer::update_health(const engine::timestep& time_step)
 					break;
 				}
 			}
+			m_audio_manager->play_spatialised_sound("health", m_3d_cam.position(), m_player.position);
 			m_player.current_hitp += 10.f;
 			m_player.current_hitp = std::min(m_player.current_hitp, m_player.max_hitp);
 			

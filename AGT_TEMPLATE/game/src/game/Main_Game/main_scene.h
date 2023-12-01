@@ -2,7 +2,7 @@
 #include <engine.h>
 #include "engine/utils/timer.h"
 #include "cross_fade.h"
-
+#include "help_popup.h"
 class mainscene_layer : public engine::layer
 {
 public:
@@ -17,8 +17,6 @@ private:
 	
 	// bool for start
 	bool isStart=true;
-
-
 	//timer for score and difficulty
 	engine::timer score_timer;
 	//mats
