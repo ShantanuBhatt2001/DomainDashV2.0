@@ -32,7 +32,7 @@ mainscene_layer::mainscene_layer() :
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 	m_directionalLight.AmbientIntensity =0.65f;
 	m_directionalLight.DiffuseIntensity = 0.6f;
-	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
+	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f));
 
 	// set color texture unit
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->bind();

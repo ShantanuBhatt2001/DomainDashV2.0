@@ -21,14 +21,14 @@ m_3d_cam((float)engine::application::window().width(), (float)engine::applicatio
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 	m_directionalLight.AmbientIntensity = 1.25f;
 	m_directionalLight.DiffuseIntensity = 1.6f;
-	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
+	m_directionalLight.Direction = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 
 	// set color texture unit
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("lighting_on", true);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_shader)->set_uniform("gColorMap", 0);
 	
-	 m_directionalLight.submit(mesh_shader);
+	// m_directionalLight.submit(mesh_shader);
 	
 
 
