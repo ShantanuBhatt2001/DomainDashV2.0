@@ -1,6 +1,5 @@
 # Domain Dash
 
-![Gameplay Screenshot](screenshot.jpg)
 
 ## Overview
 
