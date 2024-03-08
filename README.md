@@ -16,8 +16,9 @@ Domain Dash is a casual survival game set in a sci-fi space environment where th
 ## Installation
 
 1. Clone the repository: `git clone https://github.com/your-username/domain-dash.git`
-2. Open the project in your preferred IDE or text editor.
-3. Compile and run the game using the provided build scripts or IDE configuration.
+2. Open the interim-2 branch.
+3. Open the project in your preferred IDE or text editor.
+4. Compile and run the game using the provided build scripts or IDE configuration.
 
 ## How to Play
 
